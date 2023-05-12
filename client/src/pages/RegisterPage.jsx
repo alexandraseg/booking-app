@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link, Navigate} from "react-router-dom";
 import {useState} from "react";
 import axios from "axios";
 
@@ -11,6 +11,8 @@ export default function RegisterPage() {
     const [email, setEmail] = useState('');
     const [tel, setTel] = useState('');
     const [role, setRole] = useState('');
+    const [redirect, setRedirect] = useState(false);
+
 
     //sending a request to api 
     async function registerUser(ev){
@@ -27,12 +29,18 @@ export default function RegisterPage() {
                 role
             });
             alert('Registration successful. Now you can log in');
+            setRedirect(true);
             // TO DO: if role == host : msg "Pending approval of your enrollment application as host."
             // TO DO: in any case, user can log in as 'tenant'.
         } catch (e) {
             alert('Registration failed. Please try again later');
         }  
     }
+
+    if (redirect) {
+        return <Navigate to={'/login'} />
+    }
+
     return (
         <div className="mt-4 grow flex items-center justify-around">
             <div className="mb-64">

@@ -12,6 +12,7 @@ import PlacesFormPage from './pages/PlacesFormPage';
 import PlacePage from './pages/PlacePage';
 import BookingsPage from './pages/BookingsPage';
 import BookingPage from './pages/BookingPage';
+import DashboardPage from './pages/DashboardPage';
 
 axios.defaults.baseURL = 'http://localhost:4000'; //http://127.0.0.1:4000'
 axios.defaults.withCredentials = true; //to accept cookies
@@ -31,7 +32,9 @@ function App() {
         <Route path="/place/:id" element={<PlacePage />}/>
         <Route path="/account/bookings" element={<BookingsPage/>} />.
         <Route path="/account/bookings/:id" element={<BookingPage />} />
+        
       </Route>
+      <Route path="/dashboard" element={<DashboardPage/>} />
      </Routes>
     </UserContextProvider>
     

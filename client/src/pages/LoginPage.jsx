@@ -22,8 +22,10 @@ export default function LoginPage() {
         }
     }
 
-    if (redirect) {
+    if (redirect && email !== "admin@gmail.com") {
         return <Navigate to={'/'} />
+    }else if (redirect && email === "admin@gmail.com") {
+        return <Navigate to={'/dashboard'} />
     }
 
     return (

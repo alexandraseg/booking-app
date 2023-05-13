@@ -13,6 +13,11 @@ import PlacePage from './pages/PlacePage';
 import BookingsPage from './pages/BookingsPage';
 import BookingPage from './pages/BookingPage';
 import DashboardPage from './pages/DashboardPage';
+import UsersDashboardPage from './pages/UsersDashboardPage';
+import PlacesDashboardPage from './pages/PlacesDashboardPage';
+import BookingsDashboardPage from './pages/BookingsDashboardPage';
+import StaysReviewsDashboardPage from './pages/StaysReviewsDashboardPage';
+import HostsReviewsDashboardPage from './pages/HostsReviewsDashboardPage';
 
 axios.defaults.baseURL = 'http://localhost:4000'; //http://127.0.0.1:4000'
 axios.defaults.withCredentials = true; //to accept cookies
@@ -35,6 +40,12 @@ function App() {
         
       </Route>
       <Route path="/dashboard" element={<DashboardPage/>} />
+      <Route path="/dashboard/users" element={<UsersDashboardPage/>} />
+      <Route path="/dashboard/places" element={<PlacesDashboardPage/>} />
+      <Route path="/dashboard/bookings" element={<BookingsDashboardPage/>} />
+      <Route path="/dashboard/staysreviews" element={<StaysReviewsDashboardPage/>} />
+      <Route path="/dashboard/hostsreviews" element={<HostsReviewsDashboardPage/>} />
+
      </Routes>
     </UserContextProvider>
     

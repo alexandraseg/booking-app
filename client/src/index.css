@@ -21,3 +21,32 @@ button.primary{
     background-color: #F5385D;
     @apply bg-primary p-2 w-full text-white rounded-2xl;
 }
+
+table{
+    width: 100%;
+}
+
+table th{
+    font-weight: normal;
+}
+
+table th, table td{
+    padding: 8px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+table th{
+    @apply text-secondary;
+    @apply font-bold;
+    @apply uppercase;
+    @apply text-xs;
+    @apply cursor-pointer;
+
+}
+
+table td{
+    @apply text-sm;
+    @apply leading-4;
+    @apply text-gray-600;
+}
+

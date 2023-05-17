@@ -18,6 +18,7 @@ import PlacesDashboardPage from './pages/PlacesDashboardPage';
 import BookingsDashboardPage from './pages/BookingsDashboardPage';
 import StaysReviewsDashboardPage from './pages/StaysReviewsDashboardPage';
 import HostsReviewsDashboardPage from './pages/HostsReviewsDashboardPage';
+import Chat from './pages/Chat';
 
 axios.defaults.baseURL = 'http://localhost:4000'; //http://127.0.0.1:4000'
 axios.defaults.withCredentials = true; //to accept cookies
@@ -45,6 +46,7 @@ function App() {
       <Route path="/dashboard/bookings" element={<BookingsDashboardPage/>} />
       <Route path="/dashboard/staysreviews" element={<StaysReviewsDashboardPage/>} />
       <Route path="/dashboard/hostsreviews" element={<HostsReviewsDashboardPage/>} />
+      <Route path="/chat" element={<Chat/>} />
 
      </Routes>
     </UserContextProvider>

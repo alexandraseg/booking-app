@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import BookingWidget from "../BookingWidget";
 
-export default function PlacePage(){
+export default function PlacePage(props){
     const {id} = useParams();
     const [place, setPlace] = useState(null);
     const [showAllPhotos, setShowAllPhotos] = useState(false);
@@ -19,7 +19,7 @@ export default function PlacePage(){
     }, [id]);
 
     if (!place) return '';
-    
+
     if (showAllPhotos) {
         return (
             <div className="absolute inset-0 bg-white min-h-screen">
@@ -43,6 +43,13 @@ export default function PlacePage(){
             </div>
         )
     }
+
+  const owner = place.owner;
+
+  const handleClick = () => {
+    // Pass owner data to the /chat page using query parameters
+    props.history.push('/chat?owner=' + owner);
+  }
 
     return (
         <div className="mt-4 bg-gray-100 -mx-8 px-8 py-4">
@@ -87,7 +94,10 @@ export default function PlacePage(){
                     </div>
                     Check-in: {place.checkIn}<br />
                     Check-out: {place.checkOut}<br />
-                    Max number of guests: {place.maxGuests}
+                    Max number of guests: {place.maxGuests} <br />
+                    <br />
+                    <Link to={{ pathname: '/chat', search: `?owner=${place.owner}` }} className="bg-black p-2 text-white rounded-2xl mt-4">Message Host</Link>
+                    <h2 className="mt-3 text-sm text-gray-600">Let the host know why you 're travelling and when you 'll check in</h2>
                 </div>
                 <div>
                     <BookingWidget place={place} />
@@ -97,6 +107,8 @@ export default function PlacePage(){
         </div>
     );
 }
+
+// Link to={'/dashboard'}
 
 // using id inside useEffect, 
 // so that every time 'id' changes 

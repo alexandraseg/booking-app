@@ -243,12 +243,29 @@ export default function PlacesFormPage() {
                                 value={squareMeters} 
                                 onChange={ev => setSquareMeters(ev.target.value)}/>
                             </div>
-                            <div>
+
+                            {/* <div>
                                 <h3 className="mt-2 -mb-1">Type of space</h3>
                                 <input type="text" 
                                 value={spaceType} 
                                 onChange={ev => setSpaceType(ev.target.value)}/>
+                            </div> */}
+                            
+                            <div>
+                                <h3 className="mt-2 -mb-1">Type of space</h3>
+                                <select
+                                    value={spaceType}
+                                    onChange={ev => setSpaceType(ev.target.value)}
+                                >
+                                    <option value="" disabled hidden>
+                                    </option>
+                                    <option value="privateRoom">Private room</option>
+                                    <option value="sharedRoom">Shared room</option>
+                                    <option value="hotelRoom">Hotel room</option>
+                                    <option value="entirePlace">Entire place</option>
+                                </select>
                             </div>
+
                             <div>
                                 <h3 className="mt-2 -mb-1">Price per night</h3>
                                 <input type="text" 
@@ -263,7 +280,7 @@ export default function PlacesFormPage() {
                             </div> */}
                         </div>
                         <div>
-                            <button className="primary my-4">Save</button>
+                            <button className="primary my-4 mt-20">Save</button>
                         </div>
                     </form>
                 </div>

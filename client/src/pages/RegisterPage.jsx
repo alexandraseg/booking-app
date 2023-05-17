@@ -74,11 +74,32 @@ export default function RegisterPage() {
                     placeholder="mobile number"
                     value={tel}
                     onChange={ev => setTel(ev.target.value)} />
-                    <input type="text" 
+
+                    {/* <input type="text" 
                     placeholder="role"
                     value={role}
-                    onChange={ev => setRole(ev.target.value)} />
-                    <button className="primary">Register</button>
+                    onChange={ev => setRole(ev.target.value)} /> */}
+
+                    {/* <select placeholder="role"
+                    value={role}
+                    onChange={ev => setRole(ev.target.value)}
+                    >
+                    <option value="guest">Guest</option>
+                    <option value="host">Host</option>
+                    </select> */}
+
+                    <select
+                        value={role}
+                        onChange={ev => setRole(ev.target.value)}
+                    >
+                        <option value="" disabled hidden>
+                            role
+                        </option>
+                        <option value="guest">Guest</option>
+                        <option value="host">Host</option>
+                    </select>
+
+                    <button className="primary mt-12">Register</button>
                     <div className="text-center py-2 text-gray-500">
                         Already a member? <Link className="underline text-black" to={'/login'}>Login</Link>
                     </div>

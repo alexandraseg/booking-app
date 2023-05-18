@@ -84,8 +84,14 @@ app.post('/register', async (req, res)=>{
             surname,
             email,
             tel,
-            role
+            role,
+            isPendingApproval: role === 'host',
         });
+
+        // if (userDoc.isPendingApproval) {
+        //     alert('Your registration is pending approval.');
+        // }
+
         res.json(userDoc);
     } catch (e) {
         res.status(422).json(e);

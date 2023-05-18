@@ -10,6 +10,10 @@ const UserSchema = new Schema({
     email: {type: String, unique:true},
     tel: String,
     role: String,
+    isPendingApproval: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const UserModel = mongoose.model('User', UserSchema);

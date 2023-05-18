@@ -15,27 +15,56 @@ export default function RegisterPage() {
 
 
     //sending a request to api 
+    // async function registerUser(ev){
+    //     ev.preventDefault();
+    //     try {
+    //         await axios.post('/register', {
+    //             username,
+    //             password,
+    //             passwordConfirmation,
+    //             name,
+    //             surname,
+    //             email,
+    //             tel,
+    //             role
+    //         });
+    //         alert('Registration successful. Now you can log in');
+    //         setRedirect(true);
+
+    //     } catch (e) {
+    //         alert('Registration failed. Please try again later');
+    //     }  
+    // }
+
     async function registerUser(ev){
         ev.preventDefault();
         try {
-            await axios.post('/register', {
-                username,
-                password,
-                passwordConfirmation,
-                name,
-                surname,
-                email,
-                tel,
-                role
-            });
+          const response = await axios.post('/register', {
+            username,
+            password,
+            passwordConfirmation,
+            name,
+            surname,
+            email,
+            tel,
+            role
+          });
+      
+          const userDoc = response.data;
+      
+          if (userDoc.isPendingApproval) {
+            alert('Your registration is pending approval.');
+            setRedirect(true);
+          } else {
             alert('Registration successful. Now you can log in');
             setRedirect(true);
-            // TO DO: if role == host : msg "Pending approval of your enrollment application as host."
-            // TO DO: in any case, user can log in as 'tenant'.
+          }
         } catch (e) {
-            alert('Registration failed. Please try again later');
+          alert('Registration failed. Please try again later');
         }  
-    }
+      }
+
+
 
     if (redirect) {
         return <Navigate to={'/login'} />

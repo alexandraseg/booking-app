@@ -24,6 +24,12 @@ export default function BookingWidget({place}) {
     }
 
     async function bookThisPlace() {
+
+      if (!user) {
+        alert('You need to be registered to book this place.');
+        return;
+      }
+
         const data = {checkIn, checkOut, numberOfGuests, place:place._id, price:numberOfNights * place.price};
         const response = await axios.post('/bookings', data);
         const bookingId = response.data._id;

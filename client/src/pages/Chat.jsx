@@ -8,8 +8,11 @@ export default function Chat() {
     const searchParams = new URLSearchParams(location.search);
     const owner = searchParams.get('owner');
     const [newMessageText, setNewMessageText] = useState('');
+    // const username = owner ? owner.username : '';
 
-    // console.log(owner); // log the owner to the console
+//   console.log(owner); // Log the username to the console
+//   console.log(owner.username);
+
 
     function selectContact() {
 

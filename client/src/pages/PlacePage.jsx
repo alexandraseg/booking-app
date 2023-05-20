@@ -46,6 +46,9 @@ export default function PlacePage(props){
 
   const owner = place.owner;
 
+  const ownerName = owner && owner.username ? owner.username : 'Unknown';
+    // console.log(place.owner.username);
+
   const handleClick = () => {
     // Pass owner data to the /chat page using query parameters
     props.history.push('/chat?owner=' + owner);
@@ -95,7 +98,7 @@ export default function PlacePage(props){
                     Check-in: {place.checkIn}<br />
                     Check-out: {place.checkOut}<br />
                     Max number of guests: {place.maxGuests} <br />
-                    <hr></hr>
+                    <hr className="mt-8"></hr>
                     <br />
                     
                         <div className="flex gap-2 items-center">
@@ -104,7 +107,7 @@ export default function PlacePage(props){
                                     <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
                                 </svg>    
                             </div>
-                            <h2 className=" text-2xl">Hosted by</h2>
+                            <h2 className=" text-2xl">Hosted by {ownerName}</h2>
                         </div>
                         {/* <div className="flex gap-2 mb-3 ml-2 mt-1 text-sm text-gray-600">
                             <div className="mb-2">
@@ -131,21 +134,32 @@ export default function PlacePage(props){
                             </div>
                         </div>
                     <Link to={{ pathname: '/chat', 
-                        search: `?owner=${place.owner}` }} 
+                        search: `?owner=${place.owner.username}` }} 
                         className="bg-black p-2 text-white rounded-2xl mt-4">
                             Message Host
                     </Link>
                     <h2 className="mt-3 text-sm text-gray-600">Let the host know why you 're travelling and when you 'll check in</h2>
                     
-                    <hr></hr>
+                    <hr className="mt-8"></hr>
 
                     <div className="mt-4">
-                        <h2 className=" text-2xl mb-8">Reviews</h2>
+                        <h2 className=" text-2xl mb-8"> {ownerName}'s Reviews</h2>
                         <Link 
-                        className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
+                            className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
                             Show more reviews
-                    </Link>
+                        </Link>
                     </div>
+                    
+                    <hr className="mt-8"></hr>
+
+                    <div className="mt-4">
+                        <h2 className=" text-2xl mb-8"> Place's Reviews</h2>
+                        <Link 
+                            className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
+                            Show more reviews
+                        </Link>
+                    </div>
+
                 </div>
                 <div>
                     <BookingWidget place={place} />

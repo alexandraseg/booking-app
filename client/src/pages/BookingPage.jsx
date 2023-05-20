@@ -1,12 +1,30 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { differenceInCalendarDays, format } from "date-fns";
 
 export default function BookingPage() {
     const {id} = useParams();
     const [booking, setBooking] = useState(null);
     const [showAllPhotos, setShowAllPhotos] = useState(false);
+
+
+    //########### new input
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [rating, setRating] = useState(0);
+    const [comment, setComment] = useState('');
+
+    const submitFeedback = () => {
+        // Implement your logic for submitting the feedback, e.g., sending a request to the server
+        // You can use the 'rating' and 'comment' variables to access the feedback data
+        // Reset the feedback state variables after submission if needed
+        setRating(0);
+        setComment('');
+        setShowFeedbackModal(false);
+      };
+
+    //############ new input - fin
+
     useEffect(() => {
         if (id) {
             axios.get('/bookings').then(response => {
@@ -82,6 +100,13 @@ export default function BookingPage() {
                                     Total price: €{booking.place.price * differenceInCalendarDays(new Date(booking.checkOut), new Date(booking.checkIn))}
                     </div> 
             </div>
+
+            <div className="mb-8">
+            <Link to={`/account/bookings/${id}/review`} className="bg-white border p-2 text-black rounded-2xl mt-1" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>Give Feedback</Link>
+
+            </div>
+            
+
             <div className="relative">
                 <div className="grid gap-2 grid-cols-[2fr_1fr] rounded-2xl overflow-hidden">
                     <div>

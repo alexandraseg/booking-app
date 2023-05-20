@@ -181,8 +181,13 @@ app.post('/places', (req,res) => {
         if (err) throw err;
         //in the app.get('/profile') we have : 
         //const {username, email, _id} = await User.findById(userData.id);
+        
+        //new input
+        const user = await User.findById(userData.id); // Retrieve the user object from the database
+        //new input
+        
         const placeDoc = await Place.create({
-            owner:userData.id,
+            owner:user,
             title, address, photos:addedPhotos, description,
             houseRules, minimumLengthStay, checkIn,
             checkOut, maxGuests, bedsNumber, bathroomsNumber,
@@ -195,6 +200,7 @@ app.post('/places', (req,res) => {
 app.get('/user-places', (req,res) => {
     const {token} = req.cookies;
     jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+        if (err) throw err;
         const {id} = userData;
         res.json( await Place.find({owner:id}) );
     });
@@ -203,7 +209,12 @@ app.get('/user-places', (req,res) => {
 
 app.get('/places/:id', async (req,res) => {
     const {id} = req.params;
-    res.json(await Place.findById(id));
+
+    //new input
+    const place = await Place.findById(id).populate('owner', 'username');
+  res.json(place);
+    //new input
+    // res.json(await Place.findById(id));
 });
 
 //all places are public available, so no need to ensure that only owner can see them

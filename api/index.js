@@ -11,6 +11,7 @@ const imageDownloader = require('image-downloader');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs'); //filesystem required to rename photo files
+const Review = require('./models/Review.js');
 
 
 require('dotenv').config()
@@ -265,5 +266,43 @@ app.get('/bookings', async (req,res) => {
     const userData = await getUserDataFromReq(req);
     res.json( await Booking.find({user:userData.id}).populate('place'));
 });
+
+app.post('/reviews', async (req,res) => {
+    const {token} = req.cookies;
+    const {
+        hostRating, hostComment, placeRating, placeComment, date,
+     } = req.body;
+    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+        if (err) throw err;
+        
+        //new input
+        const user = await User.findById(userData.id); // Retrieve the user object from the database
+        //new input
+        
+        const reviewDoc = await Review.create({
+            guest_id:user,
+            hostRating, hostComment, placeRating, placeComment, date,
+        });
+        res.json(reviewDoc);
+     }); 
+});
+
+// app.put('/reviews', async (req, res) => {
+//     const {token} = req.cookies;
+//     const {
+//         id, hostRating, hostComment, placeRating, placeComment, date,
+//      } = req.body;
+//      jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+//         if (err) throw err;
+//         const reviewDoc = await Review.findById(id);
+//         if (userData.id === reviewDoc.guest_id.toString()) {
+//             reviewDoc.set({
+//                 hostRating, hostComment, placeRating, placeComment, date,
+//             });
+//             await reviewDoc.save();
+//             res.json('ok');
+//         }
+//      });
+// });
 
 app.listen(4000);

@@ -29,7 +29,7 @@ export default function PlacesFormPage() {
     const [price, setPrice] = useState('100');
     const [redirect, setRedirect] = useState(false);
 
-    //whem we click on a place, form page appears with the inputs we had provided
+    //when we click on a place, form page appears with the inputs we had provided
     useEffect(() => {
         if (!id) {
             return;

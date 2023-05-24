@@ -320,8 +320,16 @@ app.post('/reviews', async (req,res) => {
 // });
 
 app.get('/reviews', async (req,res) => {
-    res.json( await Review.find() ); 
+    const { place_id } = req.query;
+    const reviews = await Review.find({ place_id });
+    res.json(reviews); 
  })
+
+ app.get('/users', async (req, res) => {
+    const { ids } = req.query;
+    const users = await User.find({ _id: { $in: ids } });
+    res.json(users);
+  });
 
 
 app.listen(4000);

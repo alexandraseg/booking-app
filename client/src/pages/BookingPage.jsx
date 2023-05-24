@@ -102,7 +102,12 @@ export default function BookingPage() {
             </div>
 
             <div className="mb-8">
-            <Link to={`/account/bookings/${id}/review`} className="bg-white border p-2 text-black rounded-2xl mt-1" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>Give Feedback</Link>
+            <Link to={`/account/bookings/${id}/review`} 
+            className="bg-white border p-2 text-black rounded-2xl mt-1" 
+            style={{ borderWidth: '2px', 
+            borderColor: 'darkgray' }}>
+                Give Feedback
+            </Link>
 
             </div>
             

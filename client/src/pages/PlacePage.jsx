@@ -98,6 +98,33 @@ export default function PlacePage(props){
                     Check-in: {place.checkIn}<br />
                     Check-out: {place.checkOut}<br />
                     Max number of guests: {place.maxGuests} <br />
+                    
+                    <hr className="mt-8"></hr>
+
+
+                    <div className="mt-4">
+                        <div className="flex flex-col gap-2 mb-8 mt-1 text-2xl">
+                            <div className="flex gap-2 items-center">
+                                <div className="mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                                </svg>
+                                </div>
+                                <div className="flex flex-col">
+                                <h2>153 Reviews</h2>
+                                
+                                </div>
+                                <h2>·</h2>
+                                <h2>4.98 Rating</h2>
+                            </div>
+                        </div>
+                        
+                        <Link 
+                            className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
+                            Show all reviews
+                        </Link>
+                    </div>
+                    
                     <hr className="mt-8"></hr>
                     <br />
                     
@@ -152,13 +179,7 @@ export default function PlacePage(props){
                     
                     <hr className="mt-8"></hr>
 
-                    <div className="mt-4">
-                        <h2 className=" text-2xl mb-8"> Place's Reviews</h2>
-                        <Link 
-                            className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
-                            Show more reviews
-                        </Link>
-                    </div>
+                    
 
                 </div>
                 <div>

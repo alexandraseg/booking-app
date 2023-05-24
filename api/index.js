@@ -267,19 +267,29 @@ app.get('/bookings', async (req,res) => {
     res.json( await Booking.find({user:userData.id}).populate('place'));
 });
 
+
+//new input
+app.get('/bookings/:id', async (req,res) => {
+    const {id} = req.params;
+    const booking = await Booking.findById(id).populate('place');
+  res.json(booking);
+  
+});
+//new input
+
+
 app.post('/reviews', async (req,res) => {
     const {token} = req.cookies;
     const {
-        hostRating, hostComment, placeRating, placeComment, date,
+        hostRating, hostComment, placeRating, placeComment, date, placeId
      } = req.body;
     jwt.verify(token, jwtSecret, {}, async (err, userData) => {
         if (err) throw err;
         
-        //new input
         const user = await User.findById(userData.id); // Retrieve the user object from the database
-        //new input
         
         const reviewDoc = await Review.create({
+            place_id:placeId,
             guest_id:user,
             hostRating, hostComment, placeRating, placeComment, date,
         });
@@ -297,12 +307,21 @@ app.post('/reviews', async (req,res) => {
 //         const reviewDoc = await Review.findById(id);
 //         if (userData.id === reviewDoc.guest_id.toString()) {
 //             reviewDoc.set({
-//                 hostRating, hostComment, placeRating, placeComment, date,
+//                 hostRating, 
+//                 hostComment, 
+//                 placeRating, 
+//                 placeComment, 
+//                 date,
 //             });
 //             await reviewDoc.save();
 //             res.json('ok');
 //         }
 //      });
 // });
+
+app.get('/reviews', async (req,res) => {
+    res.json( await Review.find() ); 
+ })
+
 
 app.listen(4000);

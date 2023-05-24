@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { Navigate, useParams } from "react-router-dom";
 
 
@@ -14,22 +14,22 @@ export default function ReviewFormPage () {
     const [hostComment, setHostComment] = useState('');
     const [placeRating, setPlaceRating] = useState('');
     const [placeComment, setPlaceComment] = useState('');
+    const [placeId, setPlaceId] = useState('');
 
     // rating 
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
 
        //review form page appears with the inputs we had provided
-    //    useEffect(() => {
-    //     if (!id) {
-    //         return;
-    //     }
-    //     axios.get('/places/'+id).then(response => {
-    //         const {data} = response;
-    //         setTitle(data.title);
-    //         setAddress(data.address);
-    //     });
-    // }, [id]);
+       useEffect(() => {
+        if (!id) {
+            return;
+        }
+        axios.get('/bookings/'+id).then(response => {
+            const {data} = response;
+            setPlaceId(data.place);
+        });
+    }, [id]);
 
     async function saveReview(ev) {
       ev.preventDefault();
@@ -39,8 +39,10 @@ export default function ReviewFormPage () {
           placeRating, 
           placeComment,
           date: new Date().toISOString(), // Add the current date
+          placeId,
       };
       await axios.post('/reviews', reviewData);
+      alert("Review submitted successfully! Your review will be public on the place's page");
       setRedirect(true);
       // if (id) {
       //     // update

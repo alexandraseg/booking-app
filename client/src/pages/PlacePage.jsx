@@ -10,7 +10,10 @@ export default function PlacePage(props){
     const [showAllPhotos, setShowAllPhotos] = useState(false);
     const [reviews, setReviews] = useState([]); //n
     const [usernames, setUsernames] = useState({});
-    const [hostReviews, setHostReviews] = useState([]);
+    const [hostRatingsCount, setHostRatingsCount] = useState();
+    const [placeRatingsCount, setPlaceRatingsCount] = useState();
+    const [hostRatingsAverage, setHostRatingsAverage] = useState();
+    const [placeRatingsAverage, setPlaceRatingsAverage] = useState();
 
     const fetchUsernames = (guestIds) => {
         axios.get('/users', { params: { ids: guestIds } }).then((response) => {
@@ -36,7 +39,49 @@ export default function PlacePage(props){
             setReviews(response.data);
             const guestIds = response.data.map((review) => review.guest_id);
             fetchUsernames(guestIds);
-          }); //n
+
+            const hostRatings = response.data.reduce((sum, review) => {
+                if (review.hostRating) {
+                    return sum + review.hostRating;
+                } else {
+                    return sum;
+                }
+            }, 0);
+
+            const hostRatingsCount = response.data.reduce((count, review) => {
+                if (review.hostRating) {
+                    return count + 1;
+                } else {
+                    return count;
+                }
+            }, 0);
+
+            setHostRatingsCount(hostRatingsCount);
+
+            const hostRatingsAverage = hostRatings / hostRatingsCount;
+            setHostRatingsAverage(hostRatingsAverage);
+
+            const placeRatings = response.data.reduce((sum, review) => {
+                if (review.placeRating) {
+                    return sum + review.placeRating;
+                } else {
+                    return sum;
+                }
+            }, 0);
+
+            const placeRatingsCount = response.data.reduce((count, review) => {
+                if (review.placeRating) {
+                    return count + 1;
+                } else {
+                    return count;
+                }
+            }, 0);
+
+            setPlaceRatingsCount(placeRatingsCount);
+            const placeRatingsAverage = placeRatings / placeRatingsCount;
+            setPlaceRatingsAverage(placeRatingsAverage);
+
+        }); //n
 
     }, [id]);
 
@@ -135,16 +180,16 @@ export default function PlacePage(props){
                                         </svg>
                                     </div>
                                     <div className="flex flex-col">
-                                    <h2>153 Reviews</h2>
+                                    <h2>{placeRatingsCount} Reviews</h2>
                                     
                                     </div>
                                     <h2>·</h2>
-                                    <h2>4.98 Rating</h2>
+                                    <h2>{placeRatingsAverage} Rating</h2>
                                 </div>
                             </div>
                             
   
-                            {reviews?.slice(0, 2).map((review, index) => (
+                            {reviews?.slice(0, 1).map((review, index) => (
                                 <div key={review._id}>
                                     <div className="flex gap-2 items-center mb-2">
                                         <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
@@ -182,8 +227,9 @@ export default function PlacePage(props){
                                     </svg>    
                                 </div>
                                 <h2 className=" text-2xl">Hosted by {ownerName}</h2>
+                                
                             </div>
-                            <div className="flex flex-col gap-2 mb-8 ml-3 mt-1 text-sm text-gray-600">
+                            <div className="flex flex-col gap-2 mb-4 ml-3 mt-1 text-sm text-gray-600">
                                 <div className="flex gap-2">
                                     <div className="mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -191,11 +237,11 @@ export default function PlacePage(props){
                                     </svg>
                                     </div>
                                     <div className="flex flex-col">
-                                    <h2>153 Reviews</h2>
+                                    <h2>{hostRatingsCount} Reviews</h2>
                                     
                                     </div>
                                     <h2>|</h2>
-                                    <h2>4.98 Rating</h2>
+                                    <h2>{hostRatingsAverage} Rating</h2>
                                 </div>
                             </div>
                         <Link to={{ pathname: '/chat', 
@@ -205,7 +251,7 @@ export default function PlacePage(props){
                         </Link>
                         <h2 className="mt-3 text-sm text-gray-600">Let the host know why you 're travelling and when you 'll check in</h2>
                         
-                        <hr className="mt-8"></hr>
+                        <hr className="mt-4"></hr>
     
                         <div className="mt-4">
                             <h2 className=" text-2xl mb-4"> {ownerName}'s Reviews</h2>

@@ -67,7 +67,7 @@ export default function ReviewFormPage () {
         <h1 className="text-3xl mt-10">Review</h1>
         <form onSubmit={saveReview}>
             <h2 className="text-2xl mt-10">Describe your experience with the Place</h2>
-            <p className="text-gray-500 text-sm">Your review will be public on the place's page</p>
+            <p className="text-gray-500 text-sm">Your review will be public on the place's page.</p>
             <textarea placeholder="What was it like to stay in this place?" 
             value={placeComment} 
             onChange={ev => setPlaceComment(ev.target.value)} />

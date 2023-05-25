@@ -319,6 +319,7 @@ app.post('/reviews', async (req,res) => {
 //      });
 // });
 
+
 app.get('/reviews', async (req,res) => {
     const { place_id } = req.query;
     const reviews = await Review.find({ place_id });
@@ -330,6 +331,5 @@ app.get('/reviews', async (req,res) => {
     const users = await User.find({ _id: { $in: ids } });
     res.json(users);
   });
-
 
 app.listen(4000);

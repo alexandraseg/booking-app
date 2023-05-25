@@ -10,6 +10,7 @@ export default function PlacePage(props){
     const [showAllPhotos, setShowAllPhotos] = useState(false);
     const [reviews, setReviews] = useState([]); //n
     const [usernames, setUsernames] = useState({});
+    const [hostReviews, setHostReviews] = useState([]);
 
     const fetchUsernames = (guestIds) => {
         axios.get('/users', { params: { ids: guestIds } }).then((response) => {
@@ -36,6 +37,7 @@ export default function PlacePage(props){
             const guestIds = response.data.map((review) => review.guest_id);
             fetchUsernames(guestIds);
           }); //n
+
     }, [id]);
 
     if (!place) return '';
@@ -141,29 +143,28 @@ export default function PlacePage(props){
                                 </div>
                             </div>
                             
-                            <div>
-                                
-                            </div>
-                            {reviews?.length>0 && reviews.map(review =>(
-                            <div key={review._id}>
-                                {/* <div>Guest ID: {review.guest_id}</div> */}
-                                <div className="flex gap-2 items-center mb-2">
-                                    <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                                            <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
-                                        </svg>    
+  
+                            {reviews?.slice(0, 2).map((review, index) => (
+                                <div key={review._id}>
+                                    <div className="flex gap-2 items-center mb-2">
+                                        <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                                <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div className="">
+                                            <div>{usernames[review.guest_id]}</div>
+                                            <div className="text-gray-500">{format(new Date(review.date), "dd-MM-yyyy")}</div>
+                                        </div>
                                     </div>
-                                    <div className="">
-                                        <div>{usernames[review.guest_id]}</div>
-                                        <div className="text-gray-500">{format(new Date(review.date), "dd-MM-yyyy")}</div>
+                                    <div className="text-gray-800 mb-6">
+                                        {review.placeComment}
                                     </div>
-                                    
                                 </div>
-                                <div  className="text-gray-800 mb-6">
-                                {review.placeComment}
-                            </div>
-                            </div>
-                              ))}
+                            ))}
+                            
+
+                            
                             
                             <Link 
                                 className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
@@ -207,10 +208,30 @@ export default function PlacePage(props){
                         <hr className="mt-8"></hr>
     
                         <div className="mt-4">
-                            <h2 className=" text-2xl mb-8"> {ownerName}'s Reviews</h2>
+                            <h2 className=" text-2xl mb-4"> {ownerName}'s Reviews</h2>
+                            
+                            {reviews?.slice(0, 1).map((review, index) => (
+                                <div key={review._id}>
+                                    <div className="flex gap-2 items-center mb-2">
+                                        <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                                <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div className="">
+                                            <div>{usernames[review.guest_id]}</div>
+                                            <div className="text-gray-500">{format(new Date(review.date), "dd-MM-yyyy")}</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-gray-800 mb-6">
+                                        {review.hostComment}
+                                    </div>
+                                </div>
+                            ))}                       
+        
                             <Link 
                                 className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
-                                Show more reviews
+                                Show all reviews
                             </Link>
                         </div>
                         
@@ -238,3 +259,67 @@ export default function PlacePage(props){
 // the useEffect function will run again
 
 // target="_blank", to open new tab
+
+
+// {reviews?.[0] && (
+//     <div key={reviews[0]._id}>
+//         {/* <div>Guest ID: {review.guest_id}</div> */}
+//         <div className="flex gap-2 items-center mb-2">
+//             <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
+//                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+//                     <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+//                 </svg>    
+//             </div>
+//             <div className="">
+//                 <div>{usernames[reviews[0].guest_id]}</div>
+//                 <div className="text-gray-500">{format(new Date(reviews[0].date), "dd-MM-yyyy")}</div>
+//             </div>
+            
+//         </div>
+//         <div  className="text-gray-800 mb-6">
+//         {reviews[0].placeComment}
+//     </div>
+//     </div>
+//     )} 
+
+//     {reviews?.[1] && (
+//     <div key={reviews[1]._id}>
+//         {/* <div>Guest ID: {review.guest_id}</div> */}
+//         <div className="flex gap-2 items-center mb-2">
+//             <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
+//                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+//                     <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+//                 </svg>    
+//             </div>
+//             <div className="">
+//                 <div>{usernames[reviews[1].guest_id]}</div>
+//                 <div className="text-gray-500">{format(new Date(reviews[0].date), "dd-MM-yyyy")}</div>
+//             </div>
+            
+//         </div>
+//         <div  className="text-gray-800 mb-6">
+//         {reviews[1].placeComment}
+//     </div>
+//     </div>
+//     )} 
+
+//     {reviews?.[2] && (
+//     <div key={reviews[2]._id}>
+//         {/* <div>Guest ID: {review.guest_id}</div> */}
+//         <div className="flex gap-2 items-center mb-2">
+//             <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
+//                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+//                     <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+//                 </svg>    
+//             </div>
+//             <div className="">
+//                 <div>{usernames[reviews[2].guest_id]}</div>
+//                 <div className="text-gray-500">{format(new Date(reviews[0].date), "dd-MM-yyyy")}</div>
+//             </div>
+            
+//         </div>
+//         <div  className="text-gray-800 mb-6">
+//         {reviews[2].placeComment}
+//     </div>
+//     </div>
+//     )} 

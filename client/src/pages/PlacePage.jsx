@@ -1,8 +1,11 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import BookingWidget from "../BookingWidget";
 import { format } from "date-fns";
+import { MapContainer, TileLayer, Marker} from "react-leaflet";
+import 'leaflet/dist/leaflet.css';
+
 
 
 
@@ -16,6 +19,13 @@ export default function PlacePage(props){
     const [placeRatingsCount, setPlaceRatingsCount] = useState();
     const [hostRatingsAverage, setHostRatingsAverage] = useState();
     const [placeRatingsAverage, setPlaceRatingsAverage] = useState();
+    const [showAllPlaceReviews, setShowAllPlaceReviews] = useState(false);
+    const [showAllHostReviews, setShowAllHostReviews] = useState(false);
+    // const [bbox, setBbox] = useState();
+
+    // const [latitude, setLatitude] = useState(13.084622);
+    // const [longitude, setLongitude] = useState(80.248357);
+    // const mapRef = useRef();
 
     const bbox = "-74.25909,40.477399,-73.700181,40.917577"
 
@@ -38,8 +48,6 @@ export default function PlacePage(props){
         axios.get(`/places/${id}`).then(response => {
             setPlace(response.data);
         });
-
-        //console.log(place.address);
 
         axios.get('/reviews', { params: { place_id: id } }).then((response) => {
             setReviews(response.data);
@@ -88,11 +96,15 @@ export default function PlacePage(props){
             const placeRatingsAverage = placeRatings / placeRatingsCount;
             setPlaceRatingsAverage(placeRatingsAverage);
 
+
         }); //n
 
     }, [id]);
 
     if (!place) return '';
+
+    // console.log(place.address);
+
 
     // place.latitude = 51.505;
     // place.longitude = -0.09;
@@ -116,6 +128,82 @@ export default function PlacePage(props){
                             <img src={'http://localhost:4000/uploads/'+photo} alt="" />
                         </div>
                     ))}
+                </div>
+            </div>
+        )
+    }
+
+    if (showAllPlaceReviews) {
+        return (
+            <div className="absolute inset-0 bg-white min-h-screen">
+                <div className="p-8 grid gap-4">
+                    <div>
+                        <h2 className="text-2xl">Reviews of "{place.title}"</h2>
+                        <button onClick={() => setShowAllPlaceReviews(false)} className="fixed right-8 flex gap-1 py-2 px-4 rounded-2xl shadow shadow-black">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                                <path fillRule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clipRule="evenodd" />
+                            </svg>
+                            Go back
+                        </button>
+                    </div>
+
+                    {reviews?.map((review, index) => (
+                                <div key={review._id}>
+                                    <div className="flex gap-2 items-center mb-2">
+                                        <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                                <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div className="">
+                                            <div>{usernames[review.guest_id]}</div>
+                                            <div className="text-gray-500">{format(new Date(review.date), "dd-MM-yyyy")}</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-gray-800 mb-6">
+                                        {review.placeComment}
+                                    </div>
+                                </div>
+                    ))}
+
+                </div>
+            </div>
+        )
+    }
+
+    if (showAllHostReviews) {
+        return (
+            <div className="absolute inset-0 bg-white min-h-screen">
+                <div className="p-8 grid gap-4">
+                    <div>
+                        <h2 className="text-2xl">Reviews of {place.owner.username}</h2>
+                        <button onClick={() => setShowAllHostReviews(false)} className="fixed right-8 flex gap-1 py-2 px-4 rounded-2xl shadow shadow-black">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                                <path fillRule="evenodd" d="M7.72 12.53a.75.75 0 010-1.06l7.5-7.5a.75.75 0 111.06 1.06L9.31 12l6.97 6.97a.75.75 0 11-1.06 1.06l-7.5-7.5z" clipRule="evenodd" />
+                            </svg>
+                            Go back
+                        </button>
+                    </div>
+
+                    {reviews?.map((review, index) => (
+                                <div key={review._id}>
+                                    <div className="flex gap-2 items-center mb-2">
+                                        <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                                <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div className="">
+                                            <div>{usernames[review.guest_id]}</div>
+                                            <div className="text-gray-500">{format(new Date(review.date), "dd-MM-yyyy")}</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-gray-800 mb-6">
+                                        {review.hostComment}
+                                    </div>
+                                </div>
+                    ))}     
+
                 </div>
             </div>
         )
@@ -219,14 +307,11 @@ export default function PlacePage(props){
                                     </div>
                                 </div>
                             ))}
-                            
-
-                            
-                            
-                            <Link 
+                                                   
+                            <button onClick={() => setShowAllPlaceReviews(true)}
                                 className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
                                 Show all reviews
-                            </Link>
+                            </button>
                         </div>
                         
                         <hr className="mt-8"></hr>
@@ -287,10 +372,16 @@ export default function PlacePage(props){
                                 </div>
                             ))}                       
         
-                            <Link 
+        {/* <button onClick={() => setShowAllPlaceReviews(true)}
                                 className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
                                 Show all reviews
-                            </Link>
+                            </button> */}
+
+                            <button 
+                                onClick={() => setShowAllHostReviews(true)}
+                                className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
+                                Show all reviews
+                            </button>
                         </div>
                         
                         <hr className="mt-8"></hr>
@@ -309,6 +400,18 @@ export default function PlacePage(props){
                                 {place.address}
                             </div>
                         </div>
+
+                        {/* <MapContainer
+                        center={[latitude, longitude]}
+                        zoom={13}
+                        style={{ height: '300px', marginBottom: '1rem' }}
+                        onClick={""}
+                        ref={mapRef}
+                        height="400"
+                        width="100%"
+                        >
+                            <TileLayer url={"https://api.maptiler.com/maps/basic-v2/?key=Ja0Pt22BwVQKdlpblu0b#1.0/0.00000/0.00000"} attribution={'<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'} />
+                        </MapContainer> */}
 
                         <div className="map-container">
                             <iframe

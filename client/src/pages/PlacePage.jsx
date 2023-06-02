@@ -4,6 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import BookingWidget from "../BookingWidget";
 import { format } from "date-fns";
 
+
+
 export default function PlacePage(props){
     const {id} = useParams();
     const [place, setPlace] = useState(null);
@@ -14,6 +16,8 @@ export default function PlacePage(props){
     const [placeRatingsCount, setPlaceRatingsCount] = useState();
     const [hostRatingsAverage, setHostRatingsAverage] = useState();
     const [placeRatingsAverage, setPlaceRatingsAverage] = useState();
+
+    const bbox = "-74.25909,40.477399,-73.700181,40.917577"
 
     const fetchUsernames = (guestIds) => {
         axios.get('/users', { params: { ids: guestIds } }).then((response) => {
@@ -35,8 +39,11 @@ export default function PlacePage(props){
             setPlace(response.data);
         });
 
+        //console.log(place.address);
+
         axios.get('/reviews', { params: { place_id: id } }).then((response) => {
             setReviews(response.data);
+
             const guestIds = response.data.map((review) => review.guest_id);
             fetchUsernames(guestIds);
 
@@ -87,6 +94,9 @@ export default function PlacePage(props){
 
     if (!place) return '';
 
+    // place.latitude = 51.505;
+    // place.longitude = -0.09;
+
     if (showAllPhotos) {
         return (
             <div className="absolute inset-0 bg-white min-h-screen">
@@ -112,6 +122,8 @@ export default function PlacePage(props){
     }
 
   const owner = place.owner;
+
+//   console.log(place.owner);
 
   const ownerName = owner && owner.username ? owner.username : 'Unknown';
     // console.log(place.owner.username);
@@ -286,6 +298,33 @@ export default function PlacePage(props){
                     </div>
                     <div>
                         <BookingWidget place={place} />
+                        
+                        <div className="mt-6">                            
+                            <div className="address-link">
+                            <div className="flex gap-1 my-3 block " target="_blank" href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(place.address)}`}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+                            </svg>
+
+                                {place.address}
+                            </div>
+                        </div>
+
+                        <div className="map-container">
+                            <iframe
+                                title="OpenStreetMap"
+                                width="100%"
+                                height="400"
+                                frameBorder="0"
+                                scrolling="no"
+                                marginHeight="0"
+                                marginWidth="0"
+                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik`}
+                            ></iframe>
+                        </div>
+       
+                        </div>
+
                     </div>
                 </div>
               
@@ -297,75 +336,3 @@ export default function PlacePage(props){
         
     );
 }
-
-// Link to={'/dashboard'}
-
-// using id inside useEffect, 
-// so that every time 'id' changes 
-// the useEffect function will run again
-
-// target="_blank", to open new tab
-
-
-// {reviews?.[0] && (
-//     <div key={reviews[0]._id}>
-//         {/* <div>Guest ID: {review.guest_id}</div> */}
-//         <div className="flex gap-2 items-center mb-2">
-//             <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
-//                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-//                     <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
-//                 </svg>    
-//             </div>
-//             <div className="">
-//                 <div>{usernames[reviews[0].guest_id]}</div>
-//                 <div className="text-gray-500">{format(new Date(reviews[0].date), "dd-MM-yyyy")}</div>
-//             </div>
-            
-//         </div>
-//         <div  className="text-gray-800 mb-6">
-//         {reviews[0].placeComment}
-//     </div>
-//     </div>
-//     )} 
-
-//     {reviews?.[1] && (
-//     <div key={reviews[1]._id}>
-//         {/* <div>Guest ID: {review.guest_id}</div> */}
-//         <div className="flex gap-2 items-center mb-2">
-//             <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
-//                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-//                     <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
-//                 </svg>    
-//             </div>
-//             <div className="">
-//                 <div>{usernames[reviews[1].guest_id]}</div>
-//                 <div className="text-gray-500">{format(new Date(reviews[0].date), "dd-MM-yyyy")}</div>
-//             </div>
-            
-//         </div>
-//         <div  className="text-gray-800 mb-6">
-//         {reviews[1].placeComment}
-//     </div>
-//     </div>
-//     )} 
-
-//     {reviews?.[2] && (
-//     <div key={reviews[2]._id}>
-//         {/* <div>Guest ID: {review.guest_id}</div> */}
-//         <div className="flex gap-2 items-center mb-2">
-//             <div className="w-9 h-9 bg-white border rounded-full flex items-center justify-center">
-//                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-//                     <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
-//                 </svg>    
-//             </div>
-//             <div className="">
-//                 <div>{usernames[reviews[2].guest_id]}</div>
-//                 <div className="text-gray-500">{format(new Date(reviews[0].date), "dd-MM-yyyy")}</div>
-//             </div>
-            
-//         </div>
-//         <div  className="text-gray-800 mb-6">
-//         {reviews[2].placeComment}
-//     </div>
-//     </div>
-//     )} 

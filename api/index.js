@@ -323,6 +323,7 @@ app.post('/reviews', async (req,res) => {
 app.get('/reviews', async (req,res) => {
     const { place_id } = req.query;
     const reviews = await Review.find({ place_id });
+    // console.log(reviews);
     res.json(reviews); 
  })
 

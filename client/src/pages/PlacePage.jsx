@@ -21,13 +21,13 @@ export default function PlacePage(props){
     const [placeRatingsAverage, setPlaceRatingsAverage] = useState();
     const [showAllPlaceReviews, setShowAllPlaceReviews] = useState(false);
     const [showAllHostReviews, setShowAllHostReviews] = useState(false);
-    // const [bbox, setBbox] = useState();
+    const [bbox, setBbox] = useState();
 
     // const [latitude, setLatitude] = useState(13.084622);
     // const [longitude, setLongitude] = useState(80.248357);
     // const mapRef = useRef();
 
-    const bbox = "-74.25909,40.477399,-73.700181,40.917577"
+    
 
     const fetchUsernames = (guestIds) => {
         axios.get('/users', { params: { ids: guestIds } }).then((response) => {
@@ -39,6 +39,7 @@ export default function PlacePage(props){
         });
       };
     
+
     
     useEffect(() => {
         if (!id) {
@@ -104,10 +105,36 @@ export default function PlacePage(props){
     if (!place) return '';
 
     // console.log(place.address);
+    const address = place.address;
+    //console.log(address);
+    const url = "https://nominatim.openstreetmap.org/search?format=json&limit=3&q=" + address;
 
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const addressArr = data;
+            const boundingBoxValues = addressArr[0].boundingbox;
+            const boundingBoxString = boundingBoxValues.join(', ');
+            if (boundingBoxString) {
+                setBbox(boundingBoxString);
+                //console.log(bbox);
+              } else {
+                setBbox('-74.25909,40.477399,-73.700181,40.917577');
+                //console.log(bbox);
+              }
+        })
+        .catch(err => {
+            setBbox('-74.25909,40.477399,-73.700181,40.917577');
+            console.log(err);
+          });
 
-    // place.latitude = 51.505;
-    // place.longitude = -0.09;
+    // const bbox = boundingBoxString
+    // this appears:
+    // const bbox = '-74.25909,40.477399,-73.700181,40.917577'
+
+    // the rest not:
+    // const bbox = '-12.529929,12.530348,99.88050,99.880789'
+    // const bbox = '51.2867602,51.6918741,-0.5103751,0.3340155'
 
     if (showAllPhotos) {
         return (
@@ -400,18 +427,6 @@ export default function PlacePage(props){
                                 {place.address}
                             </div>
                         </div>
-
-                        {/* <MapContainer
-                        center={[latitude, longitude]}
-                        zoom={13}
-                        style={{ height: '300px', marginBottom: '1rem' }}
-                        onClick={""}
-                        ref={mapRef}
-                        height="400"
-                        width="100%"
-                        >
-                            <TileLayer url={"https://api.maptiler.com/maps/basic-v2/?key=Ja0Pt22BwVQKdlpblu0b#1.0/0.00000/0.00000"} attribution={'<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'} />
-                        </MapContainer> */}
 
                         <div className="map-container">
                             <iframe

@@ -21,13 +21,7 @@ export default function PlacePage(props){
     const [placeRatingsAverage, setPlaceRatingsAverage] = useState();
     const [showAllPlaceReviews, setShowAllPlaceReviews] = useState(false);
     const [showAllHostReviews, setShowAllHostReviews] = useState(false);
-    const [bbox, setBbox] = useState();
-
-    // const [latitude, setLatitude] = useState(13.084622);
-    // const [longitude, setLongitude] = useState(80.248357);
-    // const mapRef = useRef();
-
-    
+    const [mapSrc, setMapSrc] = useState("");   
 
     const fetchUsernames = (guestIds) => {
         axios.get('/users', { params: { ids: guestIds } }).then((response) => {
@@ -38,8 +32,6 @@ export default function PlacePage(props){
           setUsernames(usernameMap);
         });
       };
-    
-
     
     useEffect(() => {
         if (!id) {
@@ -105,36 +97,25 @@ export default function PlacePage(props){
     if (!place) return '';
 
     // console.log(place.address);
+    
     const address = place.address;
-    //console.log(address);
+
+    const encodedAddress = encodeURIComponent(address);
+    var mapUrl = "https://www.google.com/maps?q="+encodedAddress+"&output=embed";
+    // console.log(mapUrl);
+    
     const url = "https://nominatim.openstreetmap.org/search?format=json&limit=3&q=" + address;
 
     fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const addressArr = data;
-            const boundingBoxValues = addressArr[0].boundingbox;
-            const boundingBoxString = boundingBoxValues.join(', ');
-            if (boundingBoxString) {
-                setBbox(boundingBoxString);
-                //console.log(bbox);
-              } else {
-                setBbox('-74.25909,40.477399,-73.700181,40.917577');
-                //console.log(bbox);
-              }
-        })
-        .catch(err => {
-            setBbox('-74.25909,40.477399,-73.700181,40.917577');
-            console.log(err);
-          });
+    .then(response => response.json())
+    .then(data => {
+      setMapSrc(mapUrl);
+    })
+    .catch(err => {
+      setMapSrc(mapUrl);
+      console.log(err);
+    });
 
-    // const bbox = boundingBoxString
-    // this appears:
-    // const bbox = '-74.25909,40.477399,-73.700181,40.917577'
-
-    // the rest not:
-    // const bbox = '-12.529929,12.530348,99.88050,99.880789'
-    // const bbox = '51.2867602,51.6918741,-0.5103751,0.3340155'
 
     if (showAllPhotos) {
         return (
@@ -151,7 +132,7 @@ export default function PlacePage(props){
                     </div>
                     
                     {place?.photos?.length > 0 && place.photos.map(photo => (
-                        <div>
+                        <div key={index}>
                             <img src={'http://localhost:4000/uploads/'+photo} alt="" />
                         </div>
                     ))}
@@ -428,7 +409,13 @@ export default function PlacePage(props){
                             </div>
                         </div>
 
-                        <div className="map-container">
+                        {/* <a href="https://goo.gl/maps/b1tXobcksVCTPJDM7" target="_blank"> */}
+							{/* <div id="map-tile" className="width: 350px; height: 230px;">
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3140.4415335322346!2d23.74444021177545!3d38.083385194205356!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a1a1eeea9de233%3A0xee507bb53081b922!2zzqDOtc65z4POuc-Dz4TPgc6sz4TOv8-FIDcsIM6Rz4fOsc-Bzr3Orc-CIDEzNiA3MQ!5e0!3m2!1sel!2sgr!4v1685872433639!5m2!1sel!2sgr" width="600" height="450" className="border:0;" allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+							</div> */}
+						{/* </a> */}
+
+                        {/* <div className="map-container">
                             <iframe
                                 title="OpenStreetMap"
                                 width="100%"
@@ -438,6 +425,19 @@ export default function PlacePage(props){
                                 marginHeight="0"
                                 marginWidth="0"
                                 src={`https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik`}
+                            ></iframe>
+                        </div> */}
+
+                        <div className="map-container">
+                            <iframe
+                                title="OpenStreetMap"
+                                width="100%"
+                                height="400"
+                                frameBorder="0"
+                                scrolling="no"
+                                marginHeight="0"
+                                marginWidth="0"
+                                src={mapSrc}
                             ></iframe>
                         </div>
        

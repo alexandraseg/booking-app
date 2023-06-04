@@ -333,4 +333,46 @@ app.get('/reviews', async (req,res) => {
     res.json(users);
   });
 
+ app.get('/all-users', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+      } catch (error) {
+        console.error('Error retrieving users:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+ }) 
+
+ app.get('/all-places', async (req, res) => {
+    try {
+        const places = await Place.find();
+        res.json(places);
+    } catch (error) {
+        console.error('Error retrieving places:', error);
+        res.status(500).json({ error: 'Internal Server Error'});
+    }
+ })
+
+ app.get('/all-bookings', async (req, res) => {
+    try {
+        const bookings = await Booking.find();
+        res.json(bookings);
+    } catch (error) {
+        console.error('Error retrieving bookings:', error);
+        res.status(500).json({ error: 'Internal Server Error'});
+    }
+ })
+
+ app.get('/all-reviews', async (req, res) => {
+    try {
+        const reviews = await Review.find();
+        res.json(reviews);
+    } catch (error) {
+        console.error('Error retrieving reviews:', error);
+        res.status(500).json({ error: 'Internal Server Error'});
+    }
+ })
+
+
+
 app.listen(4000);

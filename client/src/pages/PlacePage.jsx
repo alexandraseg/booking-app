@@ -1,10 +1,11 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import BookingWidget from "../BookingWidget";
 import { format } from "date-fns";
 import { MapContainer, TileLayer, Marker} from "react-leaflet";
 import 'leaflet/dist/leaflet.css';
+import { UserContext } from "../UserContext";
 
 
 
@@ -21,7 +22,9 @@ export default function PlacePage(props){
     const [placeRatingsAverage, setPlaceRatingsAverage] = useState();
     const [showAllPlaceReviews, setShowAllPlaceReviews] = useState(false);
     const [showAllHostReviews, setShowAllHostReviews] = useState(false);
-    const [mapSrc, setMapSrc] = useState("");   
+    const [mapSrc, setMapSrc] = useState("");
+
+    const {user} = useContext(UserContext);
 
     const fetchUsernames = (guestIds) => {
         axios.get('/users', { params: { ids: guestIds } }).then((response) => {
@@ -224,6 +227,15 @@ export default function PlacePage(props){
   const ownerName = owner && owner.username ? owner.username : 'Unknown';
     // console.log(place.owner.username);
 
+    const handleLinkClick = () => {
+        if (!user) {
+        alert('You need to be registered to message the host.');
+        return;
+        } else {
+        // Perform the desired action when the user is registered
+        }
+    };
+
   const handleClick = () => {
     // Pass owner data to the /chat page using query parameters
     props.history.push('/chat?owner=' + owner);
@@ -349,11 +361,17 @@ export default function PlacePage(props){
                                     <h2>{hostRatingsAverage} Rating</h2>
                                 </div>
                             </div>
-                        <Link to={{ pathname: '/chat', 
+                    
+                    { user && (
+                        <Link to={{ 
+                            pathname: '/chat', 
                             search: `?owner=${place.owner.username}` }} 
-                            className="bg-black p-2 text-white rounded-2xl mt-4">
+                            className="bg-black p-2 text-white rounded-2xl mt-4"
+                            onClick={handleLinkClick}>
                                 Message Host
                         </Link>
+                    )}
+                        
                         <h2 className="mt-3 text-sm text-gray-600">Let the host know why you 're travelling and when you 'll check in</h2>
                         
                         <hr className="mt-4"></hr>
@@ -379,11 +397,6 @@ export default function PlacePage(props){
                                     </div>
                                 </div>
                             ))}                       
-        
-        {/* <button onClick={() => setShowAllPlaceReviews(true)}
-                                className="bg-gray-100 border p-2 text-black rounded-2xl mt-4" style={{ borderWidth: '2px', borderColor: 'darkgray' }}>
-                                Show all reviews
-                            </button> */}
 
                             <button 
                                 onClick={() => setShowAllHostReviews(true)}
@@ -408,25 +421,6 @@ export default function PlacePage(props){
                                 {place.address}
                             </div>
                         </div>
-
-                        {/* <a href="https://goo.gl/maps/b1tXobcksVCTPJDM7" target="_blank"> */}
-							{/* <div id="map-tile" className="width: 350px; height: 230px;">
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3140.4415335322346!2d23.74444021177545!3d38.083385194205356!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a1a1eeea9de233%3A0xee507bb53081b922!2zzqDOtc65z4POuc-Dz4TPgc6sz4TOv8-FIDcsIM6Rz4fOsc-Bzr3Orc-CIDEzNiA3MQ!5e0!3m2!1sel!2sgr!4v1685872433639!5m2!1sel!2sgr" width="600" height="450" className="border:0;" allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
-							</div> */}
-						{/* </a> */}
-
-                        {/* <div className="map-container">
-                            <iframe
-                                title="OpenStreetMap"
-                                width="100%"
-                                height="400"
-                                frameBorder="0"
-                                scrolling="no"
-                                marginHeight="0"
-                                marginWidth="0"
-                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik`}
-                            ></iframe>
-                        </div> */}
 
                         <div className="map-container">
                             <iframe

@@ -25,7 +25,7 @@ export default function HostsReviewsDashboardPage() {
     const columns = {
       review_id: 'Review ID',
       place_id: 'Place ID',
-      owner_id: 'Host ID',
+    //   owner_id: 'Host ID',
       hostRating: 'Host Rating',
       hostComment: 'Host Comment',
     };
@@ -81,7 +81,7 @@ export default function HostsReviewsDashboardPage() {
             <tr key={item._id}>
               <td>{item._id}</td>
               <td>{item.place_id}</td>
-              <td>{item.host_id}</td>
+              {/* <td>{item.host_id}</td> */}
               <td>{item.hostRating}</td>
               <td>{item.hostComment}</td>
             </tr>

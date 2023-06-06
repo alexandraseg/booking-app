@@ -24,7 +24,7 @@ export default function Header (){
         <span className="font-bold text-xl">Xenía</span>
         </Link>
 
-        <div className='flex gap-2 border border-gray-300 rounded-full py-2 px-4 shadow-md shadow-gray-300'>
+        <div className='flex gap-2 border border-gray-300 rounded-full py-2 px-4 shadow-md shadow-gray-300 ml-6 mr-6'>
           
           <input placeholder="Anywhere" type="text" />
 

@@ -109,3 +109,7 @@ table td{
     cursor: not-allowed;
   }
 
+  .filter-div {
+    height: 300px; /* Replace with your desired height */
+  }
+

@@ -373,6 +373,18 @@ app.get('/reviews', async (req,res) => {
     }
  })
 
+ app.get('/searchPlaces', async (req, res) => {
+    try{
+        const { address } = req.query;
+        const places = await Place.find({ address: { $regex: address, $options: 'i' } });
+        res.json(places);
+    } catch (error) {
+        console.error("Error searching places:", error);
+        res.status(500).json({error: "An error occurred while searching for places"});
+
+    }
+ });
+
 
 
 app.listen(4000);

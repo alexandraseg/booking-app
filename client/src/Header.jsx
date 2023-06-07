@@ -18,12 +18,20 @@ export default function Header (){
 
     // const history = useHistory();
 
-          //change that to get the places with specific parameters
-      useEffect(() => {
-                  axios.get('/places').then(response => {
-                      setPlaces(response.data);
-                  });
-      }, []);
+      // useEffect(() => {
+      //             axios.get('/places').then(response => {
+      //                 setPlaces(response.data);
+      //             });
+      // }, []);
+
+    const searchPlaces = async () => {
+      try {
+        const response = await axios.get(`/searchPlaces?address=${encodeURIComponent(anywhere)}`);
+        setPlaces(response.data);
+      } catch (error) {
+        console.error("Error searching places:", error);
+      }
+    };
 
     return (
         <header className="flex justify-between">
@@ -71,7 +79,9 @@ export default function Header (){
             pathname: '/results',
             search: `?places=${encodeURIComponent(JSON.stringify(places))}`,
             }}  
-            className='bg-primary text-white p-5 ml-1 rounded-full'>
+            className='bg-primary text-white p-5 ml-1 rounded-full'
+            onClick = {searchPlaces}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
               </svg>

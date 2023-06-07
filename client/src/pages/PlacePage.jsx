@@ -236,11 +236,6 @@ export default function PlacePage(props){
         }
     };
 
-  const handleClick = () => {
-    // Pass owner data to the /chat page using query parameters
-    props.history.push('/chat?owner=' + owner);
-  }
-
     return (
         <div>
             

@@ -135,7 +135,7 @@ export default function PlacePage(props){
                     </div>
                     
                     {place?.photos?.length > 0 && place.photos.map(photo => (
-                        <div key={index}>
+                        <div>
                             <img src={'http://localhost:4000/uploads/'+photo} alt="" />
                         </div>
                     ))}

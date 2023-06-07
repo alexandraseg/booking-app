@@ -1,17 +1,19 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function SearchResult() {
     const [places, setPlaces] = useState([]);
 
-    //change that to get the places with specific parameters
-    useEffect(() => {
-                axios.get('/places').then(response => {
-                    setPlaces(response.data);
-                });
-    }, []);
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const resultPlaces = searchParams.get('places');
 
+    
+    useEffect(() => {
+        if (resultPlaces) {
+        setPlaces(JSON.parse(resultPlaces));
+        }
+    }, [resultPlaces]);
 
 
     return (
@@ -82,7 +84,7 @@ export default function SearchResult() {
                     </div>
                     {/* <button onClick={bookThisPlace} className="primary mt-4"> */}
                     <button className="primary mt-4 ">
-                        Search
+                        Apply Filters
                         {/* {numberOfNights > 0 && (
                             <div>
                                 <span>Total (EUR): €{numberOfNights * place.price}</span>
@@ -110,14 +112,7 @@ export default function SearchResult() {
                             </Link>
                         ))}
                 </div>
-            </div>
-            
-           
-                 
-
-            
-            
-            
+            </div>      
         </div>
         
     );

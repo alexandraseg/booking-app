@@ -1,18 +1,29 @@
-import { Link } from "react-router-dom";
+import { Link  } from "react-router-dom";
 import { UserContext } from "./UserContext";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
+// import { useHistory } from "react-router-dom";
 
 export default function Header (){
 
     const {user} = useContext(UserContext);
 
-    // const [destination, setDestination] = useState('');
+    const [anywhere, setAnywhere] = useState('');
     const [checkIn, setCheckIn] = useState(null);
     const [checkOut, setCheckOut] = useState(null);
+    const [places, setPlaces] = useState([]);
 
+    // const history = useHistory();
+
+          //change that to get the places with specific parameters
+      useEffect(() => {
+                  axios.get('/places').then(response => {
+                      setPlaces(response.data);
+                  });
+      }, []);
 
     return (
         <header className="flex justify-between">
@@ -26,7 +37,12 @@ export default function Header (){
 
         <div className='flex gap-2 border border-gray-300 rounded-full py-2 px-4 shadow-md shadow-gray-300 ml-6 mr-6'>
           
-          <input placeholder="Anywhere" type="text" />
+          <input
+           placeholder="Anywhere" 
+           type="text"
+           value={anywhere || ''}
+           onChange={(e) => setAnywhere(e.target.value)}
+            />
 
           <div className="border-l border-gray-300"></div>
 
@@ -50,11 +66,19 @@ export default function Header (){
             isClearable
             />
 
-          <Link to ={'/results'} className='bg-primary text-white p-5 rounded-full'>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-          </svg>
+{/* search: {places}, */}
+          <Link to={{
+            pathname: '/results',
+            search: `?places=${encodeURIComponent(JSON.stringify(places))}`,
+            }}  
+            className='bg-primary text-white p-5 ml-1 rounded-full'>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
           </Link>
+
+
+
         </div>
         <Link to={user?'/account':'/login'} className='flex items-center gap-2 border border-gray-300 rounded-full py-2 px-4'>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 relative top-0">

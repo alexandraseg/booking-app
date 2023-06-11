@@ -375,15 +375,64 @@ app.get('/reviews', async (req,res) => {
 
  app.get('/searchPlaces', async (req, res) => {
     try{
-        const { address } = req.query;
-        const places = await Place.find({ address: { $regex: address, $options: 'i' } });
-        res.json(places);
+        const { address, checkIn, checkOut } = req.query;
+        const places = await Place.find({ address: { $regex: address, $options: 'i' } })
+        .populate('owner', 'username')
+        .exec();
+
+        if (checkIn && checkOut) {
+            const filteredPlaces = [];
+
+            for (const place of places) {
+                const bookings = await Booking.find({place: place._id}).exec();
+
+                let isAvailable = true;
+                for (const booking of bookings) {
+                    const H_checkIn = new Date(checkIn);
+                    const H_checkOut = new Date(checkOut);
+                    const B_checkIn = new Date(booking.checkIn);
+                    const B_checkOut = new Date(booking.checkOut);
+
+                    if (
+                        // (H_checkIn >= B_checkIn && H_checkIn <= B_checkOut) &&
+                        // (H_checkOut >= B_checkIn && H_checkOut < B_checkOut)
+                        (H_checkIn >= B_checkIn && H_checkIn < B_checkOut) ||
+                        (H_checkOut > B_checkIn && H_checkOut <= B_checkOut) ||
+                        (H_checkIn <= B_checkIn && H_checkOut >= B_checkOut)
+                    ){
+                        isAvailable = false;
+                        break;
+                    }
+                }
+
+                if (isAvailable) {
+                    filteredPlaces.push(place);
+                }
+            }
+
+            res.json(filteredPlaces);
+        } else {
+            res.json(places);
+        }
+        // res.json(places);
     } catch (error) {
         console.error("Error searching places:", error);
         res.status(500).json({error: "An error occurred while searching for places"});
 
     }
  });
+
+//  app.get('/searchPlaces', async (req, res) => {
+//     try{
+//         const { address } = req.query;
+//         const places = await Place.find({ address: { $regex: address, $options: 'i' } });
+//         res.json(places);
+//     } catch (error) {
+//         console.error("Error searching places:", error);
+//         res.status(500).json({error: "An error occurred while searching for places"});
+
+//     }
+//  });
 
 
 

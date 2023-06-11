@@ -25,7 +25,7 @@ export default function Header (){
 
     const searchPlaces = async () => {
       try {
-        const response = await axios.get(`/searchPlaces?address=${encodeURIComponent(anywhere)}`);
+        const response = await axios.get(`/searchPlaces?address=${encodeURIComponent(anywhere)}&checkIn=${checkIn}&checkOut=${checkOut}`);
         setPlaces(response.data);
         navigate('/results', { state: { places: response.data } });
       } catch (error) {

@@ -5,17 +5,21 @@ export default function SearchResult() {
     const [places, setPlaces] = useState([]);
 
     const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const resultPlaces = searchParams.get('places');
+    const { places: resultPlaces} = location.state;
+
+
+    // const searchParams = new URLSearchParams(location.search);
+    // const resultPlaces = searchParams.get('places');
 
     
     useEffect(() => {
         if (resultPlaces) {
-        setPlaces(JSON.parse(resultPlaces));
+            setPlaces(resultPlaces);
+        // setPlaces(JSON.parse(resultPlaces));
         }
     }, [resultPlaces]);
 
-
+    // console.log(places);
     return (
 
         <div className="mt-8 grid gap-x-2 gap-y-8 grid-cols-3  gap-4">

@@ -1,11 +1,10 @@
-import { Link  } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import { useContext, useEffect } from "react";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
-// import { useHistory } from "react-router-dom";
 
 export default function Header (){
 
@@ -16,18 +15,19 @@ export default function Header (){
     const [checkOut, setCheckOut] = useState(null);
     const [places, setPlaces] = useState([]);
 
-    // const history = useHistory();
+    const navigate = useNavigate();
 
-      // useEffect(() => {
-      //             axios.get('/places').then(response => {
-      //                 setPlaces(response.data);
-      //             });
-      // }, []);
+    const handleKeyDown = (event) => {
+      if (event.key === "Enter") {
+        searchPlaces();
+      }
+    };
 
     const searchPlaces = async () => {
       try {
         const response = await axios.get(`/searchPlaces?address=${encodeURIComponent(anywhere)}`);
         setPlaces(response.data);
+        navigate('/results', { state: { places: response.data } });
       } catch (error) {
         console.error("Error searching places:", error);
       }
@@ -50,6 +50,7 @@ export default function Header (){
            type="text"
            value={anywhere || ''}
            onChange={(e) => setAnywhere(e.target.value)}
+           onKeyDown={handleKeyDown} //handle Enter key press
             />
 
           <div className="border-l border-gray-300"></div>
@@ -74,18 +75,14 @@ export default function Header (){
             isClearable
             />
 
-{/* search: {places}, */}
-          <Link to={{
-            pathname: '/results',
-            search: `?places=${encodeURIComponent(JSON.stringify(places))}`,
-            }}  
+          <button 
             className='bg-primary text-white p-5 ml-1 rounded-full'
             onClick = {searchPlaces}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
               </svg>
-          </Link>
+          </button>
 
 
 

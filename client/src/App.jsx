@@ -21,6 +21,7 @@ import HostsReviewsDashboardPage from './pages/HostsReviewsDashboardPage';
 import Chat from './pages/Chat';
 import ReviewFormPage from './pages/ReviewFormPage';
 import SearchResult from './pages/SearchResult';
+import AllChats from './pages/AllChats';
 
 axios.defaults.baseURL = 'http://localhost:4000'; //http://127.0.0.1:4000'
 axios.defaults.withCredentials = true; //to accept cookies
@@ -51,6 +52,7 @@ function App() {
       <Route path="/dashboard/staysreviews" element={<StaysReviewsDashboardPage/>} />
       <Route path="/dashboard/hostsreviews" element={<HostsReviewsDashboardPage/>} />
       <Route path="/chat" element={<Chat/>} />
+      <Route path="/allchats" element={<AllChats/>} />
 
      </Routes>
     </UserContextProvider>

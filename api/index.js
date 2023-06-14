@@ -12,6 +12,8 @@ const path = require('path');
 const multer = require('multer');
 const fs = require('fs'); //filesystem required to rename photo files
 const Review = require('./models/Review.js');
+const ChatModel = require('./models/ChatModel.js');
+// const { default: Chat } = require('../client/src/pages/Chat.jsx');
 
 
 require('dotenv').config()
@@ -422,17 +424,78 @@ app.get('/reviews', async (req,res) => {
     }
  });
 
-//  app.get('/searchPlaces', async (req, res) => {
-//     try{
-//         const { address } = req.query;
-//         const places = await Place.find({ address: { $regex: address, $options: 'i' } });
-//         res.json(places);
-//     } catch (error) {
-//         console.error("Error searching places:", error);
-//         res.status(500).json({error: "An error occurred while searching for places"});
+// creating or fetching 1-1 chat
+app.post('/accessChat', async (req, res) => {
+    // const userData = await getUserDataFromReq(req);
+    // const userId = userData.id;
 
-//     }
-//  });
+    const { userId } = req.body; //the userId that we provided, not of the current user
+
+    // if a chat with that userId exists return it, otherwise create it
+    if (!userId) {
+        console.log("UserId param not sent with request");
+        return res.sendStatus(400);
+    }
+
+    var isChat = await ChatModel.find({
+        //trying to find both users: the current user that is logged in and the userId that we provided
+        $and: [ //both of these conditions should be satisfied for chat to exist 
+            { users: { $elemMatch: { $eq:req.user._id} } }, //current user that is logged in
+            { users: { $elemMatch: { $eq: userId } } },
+        ]
+    }).populate("users", "-password").populate("latestMessage"); // return everything except for password
+
+    isChat = await User.populate(isChat, {
+        path: "latestMessage.sender",
+        select: "name email", //or username instead
+    });
+
+    // checking if the chat exists
+    if(isChat.length>0){
+        res.send(isChat[0]); //only one result, because no other chat can exist with these two users
+    } else { // if it doesn't exist, it is created
+        var chatData = {
+            chatName: "sender",
+            users: [req.user._id, userId],
+        };
+
+        try {
+            const createdChat = await ChatModel.create(chatData);
+
+            // take that chat and send it to the user
+            // finding the chat with the id of the createdChat
+            const FullChat = await ChatModel.findOne({ _id: createdChat._id }).populate("users", "-password");
+
+            res.status(200).send(FullChat);
+
+        } catch (error) {
+            res.status(400);
+            throw new Error(error.message);
+
+        }
+    }
+
+});
+
+app.get('/fetchChats', async (req, res) => {
+    try {
+        // returning all the chats the user is a part of
+        ChatModel.find({ users: { $elemMatch: { $eq: req.user._id } } })
+        .populate("users", "-password")
+        .populate("latestMessage")
+            .sort({ updatedAt: -1 })
+        .then(async (results) => {
+            results = await User.populate(results, {
+                path: "latestMessage.sender",
+                select: "name email",
+            });
+            res.status(200).send(results);
+        });
+    } catch (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+})
 
 
 

@@ -360,7 +360,7 @@ export default function PlacePage(props){
                     { user && (
                         <Link to={{ 
                             pathname: '/chat', 
-                            search: `?owner=${place.owner.username}` }} 
+                            search: `?owner=${place.owner.username}&ownerId=${place.owner._id}` }} 
                             className="bg-black p-2 text-white rounded-2xl mt-4"
                             onClick={handleLinkClick}>
                                 Message Host

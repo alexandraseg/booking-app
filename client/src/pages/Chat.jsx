@@ -1,12 +1,19 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { UserContext } from "../UserContext";
 
 export default function Chat() {
+
+    const {user} = useContext(UserContext);
 
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const owner = searchParams.get('owner');
+
+    const ownerId = searchParams.get('ownerId');
+    // console.log(user._id);
+
     const [newMessageText, setNewMessageText] = useState('');
     // const username = owner ? owner.username : '';
 

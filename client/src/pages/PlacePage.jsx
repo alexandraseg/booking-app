@@ -226,13 +226,22 @@ export default function PlacePage(props){
 
   const ownerName = owner && owner.username ? owner.username : 'Unknown';
     // console.log(place.owner.username);
+    // console.log(owner._id);
 
     const handleLinkClick = () => {
         if (!user) {
         alert('You need to be registered to message the host.');
         return;
         } else {
-        // Perform the desired action when the user is registered
+            // Perform the desired action when the user is registered
+            // const ownerId = owner._id;
+            // axios.post('/accessChat', {ownerId})
+            // .then(response => {
+            //     // const chat = response.data;
+            //     // const chatId = chat._id;
+            // })
+
+        
         }
     };
 

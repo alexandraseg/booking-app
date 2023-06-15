@@ -13,6 +13,7 @@ const multer = require('multer');
 const fs = require('fs'); //filesystem required to rename photo files
 const Review = require('./models/Review.js');
 const ChatModel = require('./models/ChatModel.js');
+const Message = require('./models/Message.js');
 // const { default: Chat } = require('../client/src/pages/Chat.jsx');
 
 
@@ -426,11 +427,10 @@ app.get('/reviews', async (req,res) => {
 
 // creating or fetching 1-1 chat
 app.post('/accessChat', async (req, res) => {
-    // const userData = await getUserDataFromReq(req);
-    // const userId = userData.id;
+    const userData = await getUserDataFromReq(req);
+    // const currentUserId = userData.id;
 
     const { userId } = req.body; //the userId that we provided, not of the current user
-
     // if a chat with that userId exists return it, otherwise create it
     if (!userId) {
         console.log("UserId param not sent with request");
@@ -440,7 +440,7 @@ app.post('/accessChat', async (req, res) => {
     var isChat = await ChatModel.find({
         //trying to find both users: the current user that is logged in and the userId that we provided
         $and: [ //both of these conditions should be satisfied for chat to exist 
-            { users: { $elemMatch: { $eq:req.user._id} } }, //current user that is logged in
+            { users: { $elemMatch: { $eq:userData.id} } }, //current user that is logged in
             { users: { $elemMatch: { $eq: userId } } },
         ]
     }).populate("users", "-password").populate("latestMessage"); // return everything except for password
@@ -456,7 +456,7 @@ app.post('/accessChat', async (req, res) => {
     } else { // if it doesn't exist, it is created
         var chatData = {
             chatName: "sender",
-            users: [req.user._id, userId],
+            users: [userData.id, userId],
         };
 
         try {
@@ -495,7 +495,62 @@ app.get('/fetchChats', async (req, res) => {
         res.status(400);
         throw new Error(error.message);
     }
-})
+});
+
+app.post('/sendMessage', async (req, res) => {
+
+    const { content, chatId} = req.body;
+
+    const userData = await getUserDataFromReq(req);
+    // const currentUserId = userData.id;
+
+    if (!content || !chatId) {
+        console.log("Invalid data passed into request");
+        return res.sendStatus(400);
+    }
+
+    var newMessage = {
+        sender: userData.id,
+        content: content,
+        chat: chatId
+    };
+
+    try {
+        var message = await Message.create(newMessage);
+
+        message = await message.populate("sender", "name"); //execPopulate because we populate the instance of mongoose class
+        message = await message.populate("chat");
+        message = await User.populate(message, {
+            path: "chat.users",
+            select: "name email",
+        });
+
+        // find by id and update the latest message
+        await ChatModel.findByIdAndUpdate(req.body.chatId, {
+            latestMessage: message,
+        })
+
+        res.json(message);
+
+    } catch (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+
+});
+
+app.get('/allMessages/:chatId', async (req, res) => {
+    try {
+        const messages = await Message.find({chat:req.params.chatId})
+        .populate("sender", "name email")
+        .populate("chat");
+
+        res.json(messages);
+    } catch (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+});
 
 
 

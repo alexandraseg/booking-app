@@ -113,3 +113,11 @@ table td{
     height: 300px; /* Replace with your desired height */
   }
 
+/* Messages styling */
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}

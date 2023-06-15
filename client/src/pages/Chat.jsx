@@ -1,29 +1,159 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { UserContext } from "../UserContext";
+import axios from "axios";
+import ScrollableFeed from 'react-scrollable-feed';
+import { Tooltip, Avatar, Spinner } from "@chakra-ui/react";
 
 export default function Chat() {
+
 
     const {user} = useContext(UserContext);
 
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const owner = searchParams.get('owner');
-
     const ownerId = searchParams.get('ownerId');
+
+    // const userId = user._id;
+
+    // console.log(user.username);
     // console.log(user._id);
-
-    const [newMessageText, setNewMessageText] = useState('');
     // const username = owner ? owner.username : '';
+    //   console.log(owner); // Log the username to the console
+    //   console.log(owner.username);
 
-//   console.log(owner); // Log the username to the console
-//   console.log(owner.username);
+    const [selectedChat, setSelectedChat] = useState(null);
+    const [newMessage, setNewMessage] = useState('');
+    const [chats, setChats] = useState([]);
+    const [loggedUser, setLoggedUser] = useState('');
+    const [fetchAgain, setFetchAgain] = useState(false);
+    const [messages, setMessages] = useState([]);
 
+    const isRequestSentRef = useRef(false);
+    const [loading, setLoading] = useState(false);
 
     function selectContact() {
 
     }
+
+
+    useEffect(() => {
+        if (!isRequestSentRef.current){
+
+            isRequestSentRef.current = true;
+
+            // console.log("testing UseEffect");
+            axios.post("/accessChat", {
+                userId: ownerId // pass the ownerId as the userId parameter
+            })
+            .then(response => {
+                const { data } = response;
+                setSelectedChat(data);
+                setMessages([]);
+            })
+            .catch(error => {
+            console.log("Error in accessChat function in chat.jsx");
+            });
+        }
+
+        
+    }, []);
+
+    const sendMessage = async (event) => {
+        if (event.key === "Enter" && newMessage){
+            try {
+                setNewMessage("");
+                const {data} = await axios.post("/sendMessage", {
+                    content: newMessage,
+                    chatId: selectedChat._id, 
+                });
+
+                // adding/appending the new data
+                setMessages([...messages, data]);
+            } catch (error) {
+                console.log("erro in sendMessage function in chat.jsx");
+            }
+        }
+
+    };
+
+    //console.log(selectedChat);
+    // console.log(selectedChat._id);
+
+
+
+    const fetchMessages = async () => {
+        // if (!selectedChat) return;
+        try {
+            setLoading(true);
+            const {data} = await axios.get(`/allMessages/${selectedChat._id}`);
+
+            setMessages(data);
+
+            setLoading(false);
+
+        } catch (error) {
+            console.log("error in fetchMessages < chat.jsx");
+        }
+    }
+
+  
+
+    // console.log(selectedChat._id);
+
+    useEffect(() => {
+        fetchMessages();
+    }, []);
+
+
+
+
+    const isSameSenderMargin = (messages, m, i, userId) => {
+        // console.log(i === messages.length - 1);
+      
+        if (
+          i < messages.length - 1 &&
+          messages[i + 1].sender._id === m.sender._id &&
+          messages[i].sender._id !== userId
+        )
+          return 33; //if it is the same sender who is logged in, return 33 margin, otherwise 0
+        else if (
+          (i < messages.length - 1 &&
+            messages[i + 1].sender._id !== m.sender._id &&
+            messages[i].sender._id !== userId) ||
+          (i === messages.length - 1 && messages[i].sender._id !== userId)
+        )
+          return 0;
+        else return "auto";
+      };
+      
+
+    // all of messages, m for current message, i for index, and logged in user's id
+
+    const isSameSender = (messages, m, i, userId) => {
+        return (
+          i < messages.length - 1 &&
+          (messages[i + 1].sender._id !== m.sender._id ||
+            messages[i + 1].sender._id === undefined) &&
+          messages[i].sender._id !== userId
+        );
+      };
+      
+    const isLastMessage = (messages, i, userId) => {
+        return (
+          i === messages.length - 1 &&
+          messages[messages.length - 1].sender._id !== userId && // if it is not a message of the logged in user
+          messages[messages.length - 1].sender._id //if that message actually exists
+        );
+      };
+      
+    const isSameUser = (messages, m, i) => {
+        return i > 0 && messages[i - 1].sender._id === m.sender._id; // if sender of previous message equals to the sender of current message
+      };
+
+    console.log(messages);
 
     return (
         <div className="flex h-screen">
@@ -35,6 +165,7 @@ export default function Chat() {
                     </svg>
                     Messages
                 </div>
+
                 <div onClick={() => selectContact()} className="border-b border-gray-100 py-2 flex gap-2 items-center cursor-pointer">
                 <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -48,16 +179,98 @@ export default function Chat() {
             <div className="flex flex-col bg-blue-50 w-2/3 p-2">
                 <div className="flex-grow">
                     <div className="flex h-full flex-grow items-center justify-center">
-                        <div className="text-gray-600">messages</div>
+
+
+                        <ScrollableFeed>
+                        {/* {loading ? ( */}
+                        {messages.length === 0 ? (
+                            <Spinner 
+                                size="xl"
+                                w={20}
+                                h={20}
+                                alignSelf="center"
+                                margin="auto">
+                            </Spinner> 
+                        ) : (
+                        // <div className="text-gray-600">messages</div>
+                        messages.map((m, i) => (
+                            <div style={{ display: "flex" }} key={m._id}>
+                                {(isSameSender(messages, m, i, user._id) ||
+                                isLastMessage(messages, i, user._id)) && (
+                                <Tooltip label={m.sender.name} placement="bottom-start" hasArrow>
+                                    <Avatar
+                                    mt="7px"
+                                    mr={1}
+                                    size="sm"
+                                    cursor="pointer"
+                                    name={m.sender.name}
+                                    src={m.sender.pic}
+                                    />
+                                </Tooltip>
+                                )}
+                                <span
+                                style={{
+                                    backgroundColor: `${
+                                    m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
+                                    }`,
+                                    marginLeft: isSameSenderMargin(messages, m, i, user._id),
+                                    marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
+                                    borderRadius: "20px",
+                                    padding: "5px 15px",
+                                    maxWidth: "75%",
+                                }}
+                                >
+                                {m.content}
+                                </span>
+                            </div>
+                            ))                      
+                        )}
+
+                        
+                            
+                    {/* {messages &&
+                        messages.map((m, i) => (
+                        <div style={{ display: "flex" }} key={m._id}>
+                            {(isSameSender(messages, m, i, user._id) ||
+                            isLastMessage(messages, i, user._id)) && (
+                            <Tooltip label={m.sender.name} placement="bottom-start" hasArrow>
+                                <Avatar
+                                mt="7px"
+                                mr={1}
+                                size="sm"
+                                cursor="pointer"
+                                name={m.sender.name}
+                                src={m.sender.pic}
+                                />
+                            </Tooltip>
+                            )}
+                            <span
+                            style={{
+                                backgroundColor: `${
+                                m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
+                                }`,
+                                marginLeft: isSameSenderMargin(messages, m, i, user._id),
+                                marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
+                                borderRadius: "20px",
+                                padding: "5px 15px",
+                                maxWidth: "75%",
+                            }}
+                            >
+                            {m.content}
+                            </span>
+                        </div>
+                        ))} */}
+                            </ScrollableFeed>
+
                     </div>
                 </div>
-                <form className="flex gap-2">
+                <form className="flex gap-2" onKeyDown={sendMessage}>
                     <input type="text" 
-                    value={newMessageText}
-                    onChange={ev => setNewMessageText(ev.target.value)}
+                    value={newMessage}
+                    onChange={ev => setNewMessage(ev.target.value)}
                     className="bg-white border p-2" 
                     placeholder="Type your message here" />
-                    <button className="flex gap-2 p-2 text-white bg-primary rounded-xl items-center" >
+                    <button onClick={sendMessage} className="flex gap-2 p-2 text-white bg-primary rounded-xl items-center" >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                         </svg>

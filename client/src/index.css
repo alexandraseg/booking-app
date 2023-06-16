@@ -121,3 +121,11 @@ table td{
   overflow-y: scroll;
   scrollbar-width: none;
 }
+
+.custom-avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #BEE3F8;
+  border-radius: 50%;
+  overflow: hidden;
+}

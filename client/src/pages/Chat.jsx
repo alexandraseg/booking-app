@@ -38,46 +38,61 @@ export default function Chat() {
 
     }
 
-
     useEffect(() => {
         if (!isRequestSentRef.current){
 
             isRequestSentRef.current = true;
 
-            // console.log("testing UseEffect");
-            axios.post("/accessChat", {
-                userId: ownerId // pass the ownerId as the userId parameter
-            })
-            .then(response => {
-                const { data } = response;
-                setSelectedChat(data);
-                setMessages([]);
-            })
-            .catch(error => {
-            console.log("Error in accessChat function in chat.jsx");
-            });
+            if (ownerId) {
+                axios.post("/accessChat", {
+                    userId: ownerId, // pass the ownerId as the userId parameter
+                })
+                .then(response => {
+                    const { data } = response;
+                    setSelectedChat(data);
+                    setMessages([]);
+                })
+                .catch(error => {
+                console.log("Error in accessChat function in chat.jsx");
+                });
+            } else {
+                console.log("Owner ID is not available");
+            }
+            
         }
 
         
-    }, []);
+    }, [ownerId]);
 
     const sendMessage = async (event) => {
-        if (event.key === "Enter" && newMessage){
+        if (event.key === "Enter" || event.type === "click") {
+          event.preventDefault(); // Prevent form submission only when Enter key is pressed
+          if (newMessage) {
             try {
-                setNewMessage("");
-                const {data} = await axios.post("/sendMessage", {
-                    content: newMessage,
-                    chatId: selectedChat._id, 
-                });
-
-                // adding/appending the new data
-                setMessages([...messages, data]);
+              setNewMessage("");
+              const { data } = await axios.post("/sendMessage", {
+                content: newMessage,
+                chatId: selectedChat._id,
+              });
+      
+              // adding/appending the new data
+              setMessages([...messages, data]);
             } catch (error) {
-                console.log("erro in sendMessage function in chat.jsx");
+              console.log("error in sendMessage function in chat.jsx");
             }
+          }
         }
+      };
 
-    };
+
+    useEffect(() => {
+        // Update the URL with query parameters
+        const queryParams = new URLSearchParams();
+        queryParams.set("owner", owner);
+        queryParams.set("ownerId", ownerId);
+        const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+        window.history.replaceState({}, '', newUrl);
+      }, [owner, ownerId]);
 
     //console.log(selectedChat);
     // console.log(selectedChat._id);
@@ -85,7 +100,10 @@ export default function Chat() {
 
 
     const fetchMessages = async () => {
-        // if (!selectedChat) return;
+        if (!selectedChat) {
+            // console.log("Selected chat is not available");
+            return;
+        }
         try {
             setLoading(true);
             const {data} = await axios.get(`/allMessages/${selectedChat._id}`);
@@ -105,7 +123,7 @@ export default function Chat() {
 
     useEffect(() => {
         fetchMessages();
-    }, []);
+    }, [selectedChat]);
 
 
 
@@ -153,7 +171,7 @@ export default function Chat() {
         return i > 0 && messages[i - 1].sender._id === m.sender._id; // if sender of previous message equals to the sender of current message
       };
 
-    console.log(messages);
+    // console.log(messages);
     // console.log(selectedChat._id);
     
 

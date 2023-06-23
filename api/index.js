@@ -14,6 +14,7 @@ const fs = require('fs'); //filesystem required to rename photo files
 const Review = require('./models/Review.js');
 const ChatModel = require('./models/ChatModel.js');
 const Message = require('./models/Message.js');
+const UserPlaceModel = require('./models/UserPlace.js');
 // const { default: Chat } = require('../client/src/pages/Chat.jsx');
 
 
@@ -212,14 +213,64 @@ app.get('/user-places', (req,res) => {
 });
 
 app.get('/places/:id', async (req,res) => {
-    const {id} = req.params;
 
+    const {id} = req.params;
     //new input
     const place = await Place.findById(id).populate('owner', 'username');
-  res.json(place);
+    // Check if the user is a registered one
+    if (req.cookies.token) {
+        try {
+        const userData = await getUserDataFromReq(req);
+        const userId = userData.id;
+
+        const placeOwnerId = place.owner._id.toString();
+        
+        if (userId === placeOwnerId) {
+            // Return the place data without creating or updating the UserPlace vector
+            // console.log("registered user is also the owner of this place");
+            // console.log(place.owner._id);
+            return res.json(place);
+        }
+
+        // Create or update the UserPlace schema
+        const userPlace = await UserPlaceModel.findOneAndUpdate(
+            //searching for a document with a matching userId and placeId
+            { userId, placeId: id },
+            // This is the update object that specifies the new values for the document. 
+            // It sets the userId, placeId, and clicked fields to the provided values.
+            { userId, placeId: id, navigated: true },
+            //  options for the findOneAndUpdate method:
+            // 1) upsert: true means that if no document is found matching the filter, 
+            // a new document will be created using the update object.
+            // 2) new: true specifies that the updated document should be returned 
+            // as the result of the findOneAndUpdate operation.
+            { upsert: true, new: true }
+        );
+        // console.log('UserPlace created/updated:', userPlace);
+        } catch (err) {
+        console.error('Error retrieving user data:', err);
+        }
+  }
+  else {
+    // console.log('User not registered');
+  }
+  
+    res.json(place);
     //new input
     // res.json(await Place.findById(id));
 });
+
+// app.get('/places/:id', async (req,res) => {
+//     const {id} = req.params;
+
+//     //new input
+//     const place = await Place.findById(id).populate('owner', 'username');
+//   res.json(place);
+//     //new input
+//     // res.json(await Place.findById(id));
+// });
+
+
 
 //all places are public available, so no need to ensure that only owner can see them
 app.put('/places', async (req, res) => {
@@ -551,6 +602,10 @@ app.get('/allMessages/:chatId', async (req, res) => {
         throw new Error(error.message);
     }
 });
+
+// post if the user clicked on a place
+
+// post if the user searched a place
 
 
 

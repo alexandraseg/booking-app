@@ -306,13 +306,43 @@ app.post('/bookings', async (req,res) => {
    const userData = await getUserDataFromReq(req);
    const {place, checkIn, checkOut, numberOfGuests, price,} = req.body;
    Booking.create({
-    place, checkIn, checkOut, numberOfGuests, user:userData.id, price,
-   }).then((doc) => {
-    res.json(doc);
+    place, 
+    checkIn, 
+    checkOut, 
+    numberOfGuests, 
+    user:userData.id, 
+    price,
+   }).then(async (booking) => {
+    // Update the UserPlace vector to set "booked" as true
+    const userPlace = await UserPlaceModel.findOneAndUpdate(
+        { userId: userData.id, placeId: place },
+        { userId: userData.id, placeId: place, booked: true },
+        { upsert: true, new: true }
+    );
+
+    res.json(booking);
+
    }).catch((err) => {
     throw err;
    });
 });
+
+// app.post('/bookings', async (req,res) => {
+//     const userData = await getUserDataFromReq(req);
+//     const {place, checkIn, checkOut, numberOfGuests, price,} = req.body;
+//     Booking.create({
+//      place, 
+//      checkIn, 
+//      checkOut, 
+//      numberOfGuests, 
+//      user:userData.id, 
+//      price,
+//     }).then((doc) => {
+//      res.json(doc);
+//     }).catch((err) => {
+//      throw err;
+//     });
+//  });
 
 
 //bookings are private so first will grab the token

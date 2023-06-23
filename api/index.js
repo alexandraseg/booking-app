@@ -63,15 +63,36 @@ app.use((req, res, next) => {
 // connecting to database
 mongoose.connect(process.env.MONGO_URL);
 
-function getUserDataFromReq(req){
+// function getUserDataFromReq(req){
+//     return new Promise((resolve, reject) => {
+//         jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
+//             if (err) throw err;
+//             resolve(userData);
+//         });
+//     }); 
+// }
+
+function getUserDataFromReq(req) {
     return new Promise((resolve, reject) => {
-        jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
-            if (err) throw err;
+      const token = req.cookies.token;
+  
+      if (!token) {
+        // If token is not provided, resolve with null user data
+        resolve(null);
+      } else {
+        jwt.verify(token, jwtSecret, {}, async (err, userData) => {
+          if (err) {
+            // If error occurred during verification, reject the promise with the error
+            resolve(null);
+          } else {
+            // Resolve with the user data
             resolve(userData);
+          }
         });
+      }
     });
-    
-}
+  }
+  
 
 app.get('/test', (req, res)=>{
     res.json('test ok');
@@ -365,7 +386,12 @@ app.get('/bookings/:id', async (req,res) => {
 app.post('/reviews', async (req,res) => {
     const {token} = req.cookies;
     const {
-        hostRating, hostComment, placeRating, placeComment, date, placeId
+        hostRating, 
+        hostComment, 
+        placeRating, 
+        placeComment, 
+        date, 
+        placeId
      } = req.body;
     jwt.verify(token, jwtSecret, {}, async (err, userData) => {
         if (err) throw err;
@@ -375,8 +401,20 @@ app.post('/reviews', async (req,res) => {
         const reviewDoc = await Review.create({
             place_id:placeId,
             guest_id:user,
-            hostRating, hostComment, placeRating, placeComment, date,
+            hostRating, 
+            hostComment, 
+            placeRating, 
+            placeComment, 
+            date,
         });
+
+        // Update the UserPlace vector to set the 'rating' value
+        const userPlace = await UserPlaceModel.findOneAndUpdate(
+            { userId: userData.id, placeId },
+            { userId: userData.id, placeId, rating: placeRating },
+            { upsert: true, new: true }
+        );
+
         res.json(reviewDoc);
      }); 
 });
@@ -491,6 +529,22 @@ app.get('/reviews', async (req,res) => {
 
                 if (isAvailable) {
                     filteredPlaces.push(place);
+
+                    const userData = await getUserDataFromReq(req);
+
+                    // console.log('userData.id:', userData.id.toString());
+                    // console.log('place.owner:', place.owner._id.toString());
+                    
+                    if(userData && userData.id.toString() !== place.owner._id.toString()){
+  
+
+                        // Update the UserPlace vector to set the 'searched' value
+                        const userPlace = await UserPlaceModel.findOneAndUpdate(
+                            { userId: userData.id, placeId: place._id },
+                            { userId: userData.id, placeId: place._id, searched: true },
+                            { upsert: true, new: true }
+                    );
+                    }  
                 }
             }
 

@@ -42,7 +42,7 @@ export default function ReviewFormPage () {
           placeId,
       };
       await axios.post('/reviews', reviewData);
-      alert("Review submitted successfully! Your review will be public on the place's page");
+      alert("Review submitted successfully! Your review will be public on the place's page.");
       setRedirect(true);
       // if (id) {
       //     // update

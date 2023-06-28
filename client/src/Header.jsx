@@ -33,6 +33,15 @@ export default function Header (){
       }
     };
 
+    const matrixFactorization = async () => {
+      try {
+        const response = await axios.get('/matrixFactorization');
+        console.log(response);
+      } catch (error) {
+        console.error("Error in header.jsx > matrixFactorization");
+      }
+    };
+
     return (
         <header className="flex justify-between">
         {/* flex for placing the name next to logo */}
@@ -102,6 +111,8 @@ export default function Header (){
             </div>
           )}
         </Link>
+
+        {/* {matrixFactorization()} */}
       </header>
     );
 }

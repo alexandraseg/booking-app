@@ -687,10 +687,114 @@ app.get('/allMessages/:chatId', async (req, res) => {
     }
 });
 
-// post if the user clicked on a place
+// Recommendation system
 
-// post if the user searched a place
+app.get('/recommendations', async (req, res) => {
+    try {
+        function randomInitialization(rows, cols, distribution) {
+            const matrix = [];
+            for (let i = 0; i < rows; i++) {
+              const row = [];
+              for (let j = 0; j < cols; j++) {
+                // Generate a random value based on the specified distribution
+                const value = distribution();
+                row.push(value);
+              }
+              matrix.push(row);
+            }
+            return matrix;
+          }
+    
+        const K = 3; // Number of latent dimensions based on the desired number of latent factors: budget preference, location preference, property type)
+    
+        // Initializing F matrix (K x N-users)
+        try{
+            // Fetch all users from the database
+            const users = await User.find({});
+            const N = users.length; // Number of users
+    
+            const F = randomInitialization(K, N, () => Math.random() * 0.15);
+    
+            console.log('F matrix (K x N-users) initialized randomly successfully.');
+    
+        } catch (error) {
+            console.error('Error initializing F matrix: ', error);
+        }
+    
+        // Initializing V matrix (M-places x K)
+        try{
+            // Fetch all places from the database
+            const places = await Place.find({});
+            const M = places.length; // Number of places
+    
+            // // Random initialization of matrix V (MxK)
+            const V = randomInitialization(M, K, () => Math.random() * 0.15);
+    
+            console.log('V matrix (M-places x K) initialized randomly successfully.');
+    
+        } catch (error) {
+            console.error('Error initializing V matrix: ', error);
+        }
 
 
+
+
+
+
+        //res.json();
+    } catch (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+});
+
+async function matrixFactorization () {
+    
+    function randomInitialization(rows, cols, distribution) {
+        const matrix = [];
+        for (let i = 0; i < rows; i++) {
+          const row = [];
+          for (let j = 0; j < cols; j++) {
+            // Generate a random value based on the specified distribution
+            const value = distribution();
+            row.push(value);
+          }
+          matrix.push(row);
+        }
+        return matrix;
+      }
+
+    const K = 3; // Number of latent dimensions based on the desired number of latent factors: budget preference, location preference, property type)
+
+    // Initializing F matrix (K x N-users)
+    try{
+        // Fetch all users from the database
+        const users = await User.find({});
+        const N = users.length; // Number of users
+
+        const F = randomInitialization(K, N, () => Math.random() * 0.15);
+
+        console.log('F matrix (K x N-users) initialized randomly successfully.');
+
+    } catch (error) {
+        console.error('Error initializing F matrix: ', error);
+    }
+
+    // Initializing V matrix (M-places x K)
+    try{
+        // Fetch all places from the database
+        const places = await Place.find({});
+        const M = places.length; // Number of places
+
+        // // Random initialization of matrix V (MxK)
+        const V = randomInitialization(M, K, () => Math.random() * 0.15);
+
+        console.log('V matrix (M-places x K) initialized randomly successfully.');
+
+    } catch (error) {
+        console.error('Error initializing V matrix: ', error);
+    }
+
+}
 
 app.listen(4000);

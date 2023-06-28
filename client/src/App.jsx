@@ -21,6 +21,7 @@ import HostsReviewsDashboardPage from './pages/HostsReviewsDashboardPage';
 import Chat from './pages/Chat';
 import ReviewFormPage from './pages/ReviewFormPage';
 import SearchResult from './pages/SearchResult';
+import RecommendationsPage from './pages/RecommendationsPage';
 
 axios.defaults.baseURL = 'http://localhost:4000'; //http://127.0.0.1:4000'
 axios.defaults.withCredentials = true; //to accept cookies
@@ -38,7 +39,8 @@ function App() {
         <Route path="/account/places/new" element={<PlacesFormPage />} />
         <Route path="/account/places/:id" element={<PlacesFormPage />} />
         <Route path="/place/:id" element={<PlacePage />}/>
-        <Route path="/account/bookings" element={<BookingsPage/>} />.
+        <Route path="/account/bookings" element={<BookingsPage/>} />
+        <Route path="/account/recommendations" element={<RecommendationsPage/>}/>
         <Route path="/account/bookings/:id" element={<BookingPage />} />
         <Route path="/account/bookings/:id/review" element={<ReviewFormPage />} />
         <Route path="/results" element={<SearchResult/>} />

@@ -15,6 +15,7 @@ const Review = require('./models/Review.js');
 const ChatModel = require('./models/ChatModel.js');
 const Message = require('./models/Message.js');
 const UserPlaceModel = require('./models/UserPlace.js');
+const UserTopModel = require('./models/UserTop.js');
 // const { default: Chat } = require('../client/src/pages/Chat.jsx');
 
 
@@ -267,6 +268,11 @@ app.get('/places/:id', async (req,res) => {
             // as the result of the findOneAndUpdate operation.
             { upsert: true, new: true }
         );
+
+        if (userPlace && !userPlace.booked && userPlace.rating === null) {
+            userPlace.rating = 2;
+            await userPlace.save();
+          }
         // console.log('UserPlace created/updated:', userPlace);
         } catch (err) {
         console.error('Error retrieving user data:', err);
@@ -337,7 +343,7 @@ app.post('/bookings', async (req,res) => {
     // Update the UserPlace vector to set "booked" as true
     const userPlace = await UserPlaceModel.findOneAndUpdate(
         { userId: userData.id, placeId: place },
-        { userId: userData.id, placeId: place, booked: true },
+        { userId: userData.id, placeId: place, booked: true, rating: 5},
         { upsert: true, new: true }
     );
 
@@ -540,8 +546,8 @@ app.get('/reviews', async (req,res) => {
 
                         // Update the UserPlace vector to set the 'searched' value
                         const userPlace = await UserPlaceModel.findOneAndUpdate(
-                            { userId: userData.id, placeId: place._id },
-                            { userId: userData.id, placeId: place._id, searched: true },
+                            { userId: userData.id, placeId: place._id, booked: false, rating: null },
+                            { userId: userData.id, placeId: place._id, searched: true, rating: 2 },
                             { upsert: true, new: true }
                     );
                     }  
@@ -689,112 +695,328 @@ app.get('/allMessages/:chatId', async (req, res) => {
 
 // Recommendation system
 
-app.get('/recommendations', async (req, res) => {
-    try {
-        function randomInitialization(rows, cols, distribution) {
-            const matrix = [];
-            for (let i = 0; i < rows; i++) {
-              const row = [];
-              for (let j = 0; j < cols; j++) {
-                // Generate a random value based on the specified distribution
-                const value = distribution();
-                row.push(value);
-              }
-              matrix.push(row);
-            }
-            return matrix;
-          }
-    
-        const K = 3; // Number of latent dimensions based on the desired number of latent factors: budget preference, location preference, property type)
-    
-        // Initializing F matrix (K x N-users)
-        try{
-            // Fetch all users from the database
-            const users = await User.find({});
-            const N = users.length; // Number of users
-    
-            const F = randomInitialization(K, N, () => Math.random() * 0.15);
-    
-            console.log('F matrix (K x N-users) initialized randomly successfully.');
-    
-        } catch (error) {
-            console.error('Error initializing F matrix: ', error);
-        }
-    
-        // Initializing V matrix (M-places x K)
-        try{
-            // Fetch all places from the database
-            const places = await Place.find({});
-            const M = places.length; // Number of places
-    
-            // // Random initialization of matrix V (MxK)
-            const V = randomInitialization(M, K, () => Math.random() * 0.15);
-    
-            console.log('V matrix (M-places x K) initialized randomly successfully.');
-    
-        } catch (error) {
-            console.error('Error initializing V matrix: ', error);
-        }
-
-
-
-
-
-
-        //res.json();
-    } catch (error) {
-        res.status(400);
-        throw new Error(error.message);
-    }
-});
-
-async function matrixFactorization () {
-    
-    function randomInitialization(rows, cols, distribution) {
-        const matrix = [];
-        for (let i = 0; i < rows; i++) {
-          const row = [];
-          for (let j = 0; j < cols; j++) {
-            // Generate a random value based on the specified distribution
-            const value = distribution();
-            row.push(value);
-          }
-          matrix.push(row);
-        }
-        return matrix;
-      }
-
-    const K = 3; // Number of latent dimensions based on the desired number of latent factors: budget preference, location preference, property type)
-
-    // Initializing F matrix (K x N-users)
-    try{
-        // Fetch all users from the database
-        const users = await User.find({});
-        const N = users.length; // Number of users
-
-        const F = randomInitialization(K, N, () => Math.random() * 0.15);
-
-        console.log('F matrix (K x N-users) initialized randomly successfully.');
-
-    } catch (error) {
-        console.error('Error initializing F matrix: ', error);
-    }
-
-    // Initializing V matrix (M-places x K)
-    try{
-        // Fetch all places from the database
-        const places = await Place.find({});
-        const M = places.length; // Number of places
-
-        // // Random initialization of matrix V (MxK)
-        const V = randomInitialization(M, K, () => Math.random() * 0.15);
-
-        console.log('V matrix (M-places x K) initialized randomly successfully.');
-
-    } catch (error) {
-        console.error('Error initializing V matrix: ', error);
-    }
-
+// Helper function to transpose a matrix
+function transpose(matrix) {
+    return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
 }
 
+function dotProduct(a, b) {
+    let product = 0;
+    for (let i = 0; i < a.length; i++) {
+        product += a[i] * b[i];
+    }
+    return product;
+}
+
+function matrixFactorisation(
+    Ratings, features = 2, 
+    epochs = 4000, learningRate = 0.01, 
+    weightDecay = 0.0002, verbose = true) {
+
+    const lenRatings = Ratings.length;
+    const lenItems = Ratings[0].length;
+
+    // initialization of the elements of the User and Item features matrices
+    let UserFeatures = [];
+    let ItemFeatures = [];
+    
+    for (let i = 0; i < lenRatings; i++) {
+        UserFeatures.push(new Array(features).fill(0));
+    }
+    for (let i = 0; i < lenItems; i++) {
+        ItemFeatures.push(new Array(features).fill(0));
+    }
+
+    for (let i = 0; i < lenRatings; i++) {
+        for (let j = 0; j < features; j++) {
+            UserFeatures[i][j] = Math.random() * 0.15;
+        }
+    }
+    for (let i = 0; i < lenItems; i++) {
+        for (let j = 0; j < features; j++) {
+            ItemFeatures[i][j] = Math.random() * 0.15;
+        }
+    }
+    ItemFeatures = transpose(ItemFeatures);
+
+    let bestRMSE = Infinity;
+
+    const invariant = learningRate * weightDecay;
+    const normaliz = weightDecay / 2;
+
+        
+    for (let epoch = 0; epoch < epochs; epoch++) {
+        for (let i = 0; i < lenRatings; i++) {
+            for (let j = 0; j < lenItems; j++) {
+                // Only if it is a known element i.e. greater than zero
+                if (Ratings[i][j] > 0) {
+                    // Prediction is the dot product
+                    const prediction = dotProduct(UserFeatures[i], ItemFeatures[j]);
+                    
+                    // Compute the error
+                    const error = Ratings[i][j] - prediction;
+                    
+                    // Compute the gradient of error squared and update the
+                    // features with regularization to prevent large weights
+                    for (let w = 0; w < features; w++) {
+                        UserFeatures[i][w] += 2 * learningRate * error * ItemFeatures[j][w] - invariant * UserFeatures[i][w];
+                        ItemFeatures[j][w] += 2 * learningRate * error * UserFeatures[i][w] - invariant * ItemFeatures[j][w];
+                    }
+                }
+            }
+        }
+        
+        // Calculate the RMSE
+        let MSE = 0;
+        let count = 0;
+        for (let i = 0; i < lenRatings; i++) {
+            for (let j = 0; j < lenItems; j++) {
+                if (Ratings[i][j] > 0) {
+                    count++;
+                    // Loss function error sum
+                    MSE += Math.pow(Ratings[i][j] - dotProduct(UserFeatures[i], ItemFeatures[j]), 2);
+                    // Regularization
+                    for (let w = 0; w < features; w++) {
+                        MSE += normaliz * (Math.pow(UserFeatures[i][w], 2) + Math.pow(ItemFeatures[j][w], 2));
+                    }
+                }
+            }
+        }
+        
+        const RMSE = Math.sqrt(MSE / count);
+        
+        if (verbose) {
+        console.log("Epoch: ", epoch, "\nRMSE: ", RMSE, "\n__________________________\n");
+        }
+        
+        // Stopping Condition
+        if (RMSE > bestRMSE) {
+            break;
+        }
+        
+       bestRMSE = RMSE;
+    }
+        
+    const MatrixReversi = dotProduct(UserFeatures, ItemFeatures);
+        
+    return MatrixReversi;
+}
+
+app.get('/recommendations', async (req, res) => {
+    try {
+        // Fetch all users from the database
+        const users = await User.find({});
+      
+        // Fetch all places from the database
+        const items = await Place.find({});
+      
+        // Fetch all userplaces from the database
+        const userPlaces = await UserPlaceModel.find({});
+
+        // Dictionary
+        const userIDs = {};
+        let i = 0;
+        for (const user of users) {
+            userIDs[user[0]] = i;
+            i++;
+        }
+
+        // Keep id 
+        const itemIDs = {};
+        const itemList = [];
+        // const available = [];
+        i = 0;
+        for (const item of items) {
+            itemIDs[item[0]] = i;
+            itemList.push(item[0]);
+            // available.push(item[12]);
+            i++;
+        }
+
+        // Initialisation of the Ratings Matrix
+        const Ratings = Array.from({ length: users.length }, () => Array(items.length).fill(0));
+        
+         // Add the Ratings that come from the user history
+         for (const userPlace of userPlaces) {
+          const row = userIDs[userPlace.userId];
+          const column = itemIDs[userPlace.placeId];
+          Ratings[row][column] = userPlace.rating;
+         }
+        
+         // Calculate the predicted ratings for unknown elements
+         const PredictedRatings = matrixFactorisation(Ratings, true);
+        
+         for (let i = 0; i < users.length; i++) {
+          for (let j = 0; j < items.length; j++) {
+           // Only keep the Unknown elements and those that are not theirs
+           if (Ratings[i][j] > 0 || items[j].owner.toString() === users[i]._id.toString()) {
+            // By making the known in predicted 0
+            PredictedRatings[i][j] = 0;
+           }
+          }
+         }
+        
+         let top = 6;
+        
+         // If the item pool is less than 6 keep just the top len
+         if (itemList.length < 6) {
+          top = itemList.length;
+         }
+
+         // Remove past recommendations
+         await UserTopModel.deleteMany({});
+
+            if (err) throw err;
+
+            for (const userID in userIDs) {
+                if (Object.hasOwnProperty.call(userIDs, userID)) {
+                    const userIndex = userIDs[userID];
+                        
+                    // Get their top recommendations
+                    const myPersonalRecommendations = PredictedRatings[userIndex]
+                        .map((_, i) => i)
+                        .sort((a, b) => PredictedRatings[userIndex][b] - PredictedRatings[userIndex][a])
+                        .slice(0, top);
+                        
+                    // Fill the remaining slots with zeroes if necessary
+                    if (itemList.length < 6) {
+                        for (let i = 0; i < 6 - itemList.length; i++) {
+                            myPersonalRecommendations.push(0);
+                        }
+                    }
+                        
+                    const recommendations = myPersonalRecommendations.map(index => itemList[index]);
+                    await UserTopModel.create({
+                        p1: recommendations[0],
+                        p2: recommendations[1],
+                        p3: recommendations[2],
+                        p4: recommendations[3],
+                        p5: recommendations[4],
+                        p6: recommendations[5],
+                        UserId: user._id
+                    });
+                }
+            }
+        
+
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+})
+
+// app.get('/recommendations', async (req, res) => {
+//     try {
+//         function randomInitialization(rows, cols, distribution) {
+//             const matrix = [];
+//             for (let i = 0; i < rows; i++) {
+//               const row = [];
+//               for (let j = 0; j < cols; j++) {
+//                 // Generate a random value based on the specified distribution
+//                 const value = distribution();
+//                 row.push(value);
+//               }
+//               matrix.push(row);
+//             }
+//             return matrix;
+//           }
+
+//         function multiplyMatrices(a, b) {
+//             const rowsA = a.length;
+//             const colsA = a[0].length;
+//             const colsB = b[0].length;
+
+//             const result = [];
+
+//             for (let i = 0; i < rowsA; i++) {
+//                 result[i] = [];
+//                 for (let j = 0; j < colsB; j++) {
+//                 result[i][j] = 0;
+//                 for (let k = 0; k < colsA; k++) {
+//                     result[i][j] += a[i][k] * b[k][j];
+//                 }
+//                 }
+//             }
+
+//             return result;
+//         }
+    
+//         const K = 2; // Number of latent dimensions based on the desired number of latent factors: budget preference, location preference, property type)
+        
+//         let F;
+//         let V;
+
+       
+//         // Initializing F matrix (K x N-users)
+//         try{
+//             // Fetch all users from the database
+//             const users = await User.find({});
+//             const N = users.length; // Number of users
+    
+//             F = randomInitialization(K, N, () => Math.random() * 0.15);
+    
+//             console.log('F matrix (K x N-users) initialized randomly successfully.');
+    
+//         } catch (error) {
+//             console.error('Error initializing F matrix: ', error);
+//         }
+    
+//         // Initializing V matrix (M-places x K)
+//         try{
+//             // Fetch all places from the database
+//             const places = await Place.find({});
+//             const M = places.length; // Number of places
+    
+//             // // Random initialization of matrix V (MxK)
+//             V = randomInitialization(M, K, () => Math.random() * 0.15);
+//             // V = randomInitialization(M, K, () => Math.floor(Math.random() * 5) + 1);
+//             console.log('V matrix (M-places x K) initialized randomly successfully.');
+    
+//         } catch (error) {
+//             console.error('Error initializing V matrix: ', error);
+//         }
+
+//         const X = multiplyMatrices(V, F);
+
+//         if (X) {
+//             console.log("multiplied matrices");
+//             console.log('X matrix: ', X);
+//         }
+
+//         //res.json();
+//     } catch (error) {
+//         res.status(400);
+//         throw new Error(error.message);
+//     }
+// });
+
+// UserPlaceModel.find({})
+//   .then(async (userPlaces) => {
+//     for (const userPlace of userPlaces) {
+//       // Check if navigated or searched is true and booked is false
+//       if ((userPlace.navigated || userPlace.searched) && !userPlace.booked) {
+//         // If rating is null, set it to 2
+//         if (userPlace.rating === null) {
+//           userPlace.rating = 2;
+//           await userPlace.save();
+//           console.log(`Rating set to 2 for UserPlace ${userPlace._id}`);
+//         }
+//       }
+//       // Check if booked is true and rating is null
+//       else if (userPlace.booked && userPlace.rating === null) {
+//         // Set rating to 5
+//         userPlace.rating = 5;
+//         await userPlace.save();
+//         console.log(`Rating set to 5 for UserPlace ${userPlace._id}`);
+//       }
+//     }
+
+//     console.log('Rating update process completed.');
+//   })
+//   .catch((error) => {
+//     console.error('Error retrieving UserPlaces:', error);
+//   });
+
 app.listen(4000);
+
+

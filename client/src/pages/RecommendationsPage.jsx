@@ -1,18 +1,29 @@
 import { Link } from "react-router-dom";
 import AccountNav from "../AccountNav";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import PlaceImg from "../PlaceImg";
 
 
 export default function RecommendationsPage() {
 
+    const isRequestSentRef = useRef(false);
+
     const [recommendations,setRecommendations] = useState([]);
-    // useEffect(() => {
-    //     axios.get('/recommendations').then(({data}) => {
-    //         setRecommendations(data);
-    //     });
-    // }, []);
+
+    useEffect(() => {
+        if (!isRequestSentRef.current){
+
+            isRequestSentRef.current = true;
+
+            axios.get('/recommendations').then(({data}) => {
+                setRecommendations(data);
+            });
+
+        }
+
+    }, []);
+
     return (
         <div>
             <AccountNav />

@@ -14,6 +14,10 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    userTop: {
+        type: Schema.Types.ObjectId,
+        ref: 'UserTop',
+    },
 });
 
 const UserModel = mongoose.model('User', UserSchema);

@@ -16,8 +16,6 @@ const ChatModel = require('./models/ChatModel.js');
 const Message = require('./models/Message.js');
 const UserPlaceModel = require('./models/UserPlace.js');
 const UserTopModel = require('./models/UserTop.js');
-// const { default: Chat } = require('../client/src/pages/Chat.jsx');
-
 
 require('dotenv').config()
 
@@ -30,20 +28,6 @@ const jwtSecret = 'randomstringhere';
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname+'/uploads')); //defining that everything that is inside /uploads should be displayed in the browser
-
-// app.use(cors({
-//     credentials: true,
-//     origin: 'http://127.0.0.1:5173',
-// }));
-
-// app.use(function(req, res, next) {
-//     res.setHeader('Access-Control-Allow-Origin', '*');
-//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-//     res.setHeader('Access-Control-Allow-Credentials', true);
-//     next();
-// });
-
 
 app.use((req, res, next) => {
     const allowedOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173', 'http://127.0.0.1:4000', 'http://localhost:4000'];
@@ -58,20 +42,7 @@ app.use((req, res, next) => {
     return next();
   });
 
-// testing if it works
-// console.log(process.env.MONGO_URL)
-
-// connecting to database
 mongoose.connect(process.env.MONGO_URL);
-
-// function getUserDataFromReq(req){
-//     return new Promise((resolve, reject) => {
-//         jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
-//             if (err) throw err;
-//             resolve(userData);
-//         });
-//     }); 
-// }
 
 function getUserDataFromReq(req) {
     return new Promise((resolve, reject) => {
@@ -94,7 +65,6 @@ function getUserDataFromReq(req) {
     });
   }
   
-
 app.get('/test', (req, res)=>{
     res.json('test ok');
 });
@@ -115,10 +85,6 @@ app.post('/register', async (req, res)=>{
             isPendingApproval: role === 'host',
         });
 
-        // if (userDoc.isPendingApproval) {
-        //     alert('Your registration is pending approval.');
-        // }
-
         res.json(userDoc);
     } catch (e) {
         res.status(422).json(e);
@@ -131,7 +97,7 @@ app.post('/login', async (req,res) => {
     const userDoc = await User.findOne({email}); //User.findOne({username:username}) but because those two are the same it can be writen as ({username})
     if (userDoc) { //if userDoc is not null
         // res.json('found');
-        // create a jwt and respond with a cookia and encrypted username
+        // create a jwt and respond with a cookie and encrypted username
         const passOk = bcrypt.compareSync(password, userDoc.password);
         if (passOk) {
             jwt.sign({
@@ -181,8 +147,7 @@ app.post('/upload-by-link', async (req,res)=>{
 })
 
 const photosMiddleware = multer({dest:'uploads'});
-// I've set 'photos' in PlacesPage: data.set('photos', files);
-// 100 = maximum photos accepted
+
 app.post('/upload', photosMiddleware.array('photos', 100), (req,res)=>{
     const uploadedFiles = [];
     for (let i = 0; i < req.files.length; i++) {
@@ -206,12 +171,8 @@ app.post('/places', (req,res) => {
      } = req.body;
     jwt.verify(token, jwtSecret, {}, async (err, userData) => {
         if (err) throw err;
-        //in the app.get('/profile') we have : 
-        //const {username, email, _id} = await User.findById(userData.id);
         
-        //new input
         const user = await User.findById(userData.id); // Retrieve the user object from the database
-        //new input
         
         const placeDoc = await Place.create({
             owner:user,
@@ -237,7 +198,6 @@ app.get('/user-places', (req,res) => {
 app.get('/places/:id', async (req,res) => {
 
     const {id} = req.params;
-    //new input
     const place = await Place.findById(id).populate('owner', 'username');
     // Check if the user is a registered one
     if (req.cookies.token) {
@@ -285,21 +245,7 @@ app.get('/places/:id', async (req,res) => {
   }
   
     res.json(place);
-    //new input
-    // res.json(await Place.findById(id));
 });
-
-// app.get('/places/:id', async (req,res) => {
-//     const {id} = req.params;
-
-//     //new input
-//     const place = await Place.findById(id).populate('owner', 'username');
-//   res.json(place);
-//     //new input
-//     // res.json(await Place.findById(id));
-// });
-
-
 
 //all places are public available, so no need to ensure that only owner can see them
 app.put('/places', async (req, res) => {
@@ -325,7 +271,6 @@ app.put('/places', async (req, res) => {
         }
      });
 });
-
 
 app.get('/places', async (req,res) => {
    res.json( await Place.find() ); 
@@ -356,40 +301,18 @@ app.post('/bookings', async (req,res) => {
    });
 });
 
-// app.post('/bookings', async (req,res) => {
-//     const userData = await getUserDataFromReq(req);
-//     const {place, checkIn, checkOut, numberOfGuests, price,} = req.body;
-//     Booking.create({
-//      place, 
-//      checkIn, 
-//      checkOut, 
-//      numberOfGuests, 
-//      user:userData.id, 
-//      price,
-//     }).then((doc) => {
-//      res.json(doc);
-//     }).catch((err) => {
-//      throw err;
-//     });
-//  });
-
-
 //bookings are private so first will grab the token
 app.get('/bookings', async (req,res) => {
     const userData = await getUserDataFromReq(req);
     res.json( await Booking.find({user:userData.id}).populate('place'));
 });
 
-
-//new input
 app.get('/bookings/:id', async (req,res) => {
     const {id} = req.params;
     const booking = await Booking.findById(id).populate('place');
   res.json(booking);
   
 });
-//new input
-
 
 app.post('/reviews', async (req,res) => {
     const {token} = req.cookies;
@@ -426,29 +349,6 @@ app.post('/reviews', async (req,res) => {
         res.json(reviewDoc);
      }); 
 });
-
-// app.put('/reviews', async (req, res) => {
-//     const {token} = req.cookies;
-//     const {
-//         id, hostRating, hostComment, placeRating, placeComment, date,
-//      } = req.body;
-//      jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-//         if (err) throw err;
-//         const reviewDoc = await Review.findById(id);
-//         if (userData.id === reviewDoc.guest_id.toString()) {
-//             reviewDoc.set({
-//                 hostRating, 
-//                 hostComment, 
-//                 placeRating, 
-//                 placeComment, 
-//                 date,
-//             });
-//             await reviewDoc.save();
-//             res.json('ok');
-//         }
-//      });
-// });
-
 
 app.get('/reviews', async (req,res) => {
     const { place_id } = req.query;
@@ -524,8 +424,6 @@ app.get('/reviews', async (req,res) => {
                     const B_checkOut = new Date(booking.checkOut);
 
                     if (
-                        // (H_checkIn >= B_checkIn && H_checkIn <= B_checkOut) &&
-                        // (H_checkOut >= B_checkIn && H_checkOut < B_checkOut)
                         (H_checkIn >= B_checkIn && H_checkIn < B_checkOut) ||
                         (H_checkOut > B_checkIn && H_checkOut <= B_checkOut) ||
                         (H_checkIn <= B_checkIn && H_checkOut >= B_checkOut)
@@ -539,12 +437,8 @@ app.get('/reviews', async (req,res) => {
                     filteredPlaces.push(place);
 
                     const userData = await getUserDataFromReq(req);
-
-                    // console.log('userData.id:', userData.id.toString());
-                    // console.log('place.owner:', place.owner._id.toString());
                     
                     if(userData && userData.id.toString() !== place.owner._id.toString()){
-  
 
                         // Update the UserPlace vector to set the 'searched' value
                         const userPlace = await UserPlaceModel.findOneAndUpdate(
@@ -702,30 +596,14 @@ function transpose(matrix) {
     return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
 }
 
-// function dotProduct(a, b) {
-//     console.log("a: ", a);
-//     console.log("b: ", b);
-//     let product = 0;
-//     if(b) {
-//         for (let i = 0; i < a.length; i++) {
-//             product += a[i] * b[i];
-//         }  
-//     }
-//     return product;
-// }
-
 function dotProduct(arr1, arr2) {
-
-    // console.log("arr1 - UserFeatures[i]: ", arr1);
-    // console.log("arr2 - ItemFeatures[j]: ", arr2);
-
     var result = 0;
     for (var i = 0; i < arr1.length; i++) {
       result += arr1[i] * arr2[i];
     }
   
     return result;
-  }
+}
 
 function dot(matrixA, matrixB) {
   if (matrixA[0].length !== matrixB.length) {
@@ -793,25 +671,12 @@ function matrixFactorisation(
 
     console.log("UserFeatures dimensions:", UserFeatures.length, "x", UserFeatures[0].length);
     console.log("ItemFeatures dimensions:", ItemFeatures.length, "x", ItemFeatures[0].length);
-    // console.log("Ratings dimensions:", Ratings.length, "x", Ratings[0].length);
-
-    // console.log("UserFeatures length:", UserFeatures.length);
-    // console.log("ItemFeatures length:", ItemFeatures.length);
-
-    // console.log("UserFeatures 1: ", UserFeatures);
-    // console.log("ItemFeatures 1: ", ItemFeatures);
-
 
     for (let epoch = 0; epoch < epochs; epoch++) {
 
         for (let i = 0; i < Ratings.length; i++) {
             console.log("i: ", i);
             for (let j = 0; j < Ratings[i].length; j++) {
-
-                // console.log("j: ", j);
-                // console.log("ItemFeatures[j]", ItemFeatures[j]);
-
-                // console.log("ItemFeatures[j].length: ", ItemFeatures[j].length);
 
                 // Only if it is a known element i.e. greater than zero
                 if (Ratings[i][j] > 0) {
@@ -840,12 +705,8 @@ function matrixFactorisation(
                     console.log("here 1");
 
                     for (let w = 0; w < features; w++) {
-                        // console.log("UserFeatures[i][w] 1: ", UserFeatures[i][w]);
-                        // console.log("ItemFeatures[w][j] 1: ", ItemFeatures[w][j]);
                         UserFeatures[i][w] += 2 * learningRate * error * ItemFeatures[w][j] - invariant * UserFeatures[i][w];
                         ItemFeatures[w][j] += 2 * learningRate * error * UserFeatures[i][w] - invariant * ItemFeatures[w][j];
-                        // console.log("UserFeatures[i][w] 2 : ", UserFeatures[i][w]);
-                        // console.log("ItemFeatures[w][j] 2: ", ItemFeatures[w][j]);
                     }
                     console.log("here 3");
                     console.log("i in the end", i);
@@ -899,24 +760,6 @@ function matrixFactorisation(
 
     console.log("UserFeatures dimensions 2:", UserFeatures.length, "x", UserFeatures[0].length);
     console.log("ItemFeatures dimensions 2:", ItemFeatures.length, "x", ItemFeatures[0].length);
-
-    // function isValidMatrix(matrix) {
-    //     for (let row of matrix) {
-    //       for (let value of row) {
-    //         if (isNaN(value) || typeof value !== 'number') {
-    //           return false;
-    //         }
-    //       }
-    //     }
-    //     return true;
-    //   }
-      
-    //   if (isValidMatrix(UserFeatures) && isValidMatrix(ItemFeatures)) {
-    //     // Perform the dot product calculation
-    //     console.log("Invalid matrix values NOT found.");
-    //   } else {
-    //     console.log("Invalid matrix values found. Please double-check your matrices.");
-    //   }
     
     const MatrixReversi = dot(UserFeatures, ItemFeatures);
 
@@ -970,9 +813,6 @@ app.get('/recommendations', async (req, res) => {
          for (const userPlace of userPlaces) {
           const row = userIDs[userPlace.userId];
           const column = itemIDs[userPlace.placeId];
-
-        //   console.log('Row:', row);
-        //   console.log('Column:', column);
 
           if (Ratings[row] && Ratings[row][column] !== undefined) {
             Ratings[row][column] = userPlace.rating;

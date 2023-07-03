@@ -10,6 +10,7 @@ export default function RecommendationsPage() {
     const isRequestSentRef = useRef(false);
     const [placeIds, setPlaceIds] = useState([]);
     const [places, setPlaces] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,8 +31,10 @@ export default function RecommendationsPage() {
               const placeData = placeResponses.map((placeResponse) => placeResponse.data);
               // Store the place data in the 'places' state
               setPlaces(placeData);
+              setIsLoading(false);
             } catch (error) {
               console.error('Error retrieving recommendations:', error);
+              setIsLoading(false);
             }
           }
         };
@@ -40,25 +43,29 @@ export default function RecommendationsPage() {
       }, []);
 
       return (
-    <div>
-      <AccountNav />
-      <div className="mt-4">
-        {places.length > 0 &&
-          places.map((place) => (
-            <Link
-              key={place._id}
-              to={`/place/${place._id}`}
-              className="flex cursor-pointer gap-4 bg-gray-100 p-4 rounded-2xl"
-            >
-              <div className="grow-0 shrink">
-                <h2 className="text-xl">{place.title}</h2>
-                <p className="text-sm mt-2">{place.description}</p>
-              </div>
-            </Link>
-          ))}
-      </div>
-    </div>
-    
+        <div>
+          <AccountNav />
+          <div className="mt-4">
+            {isLoading ? ( // Display loading message while fetching data
+              <p>Loading...</p>
+            ) : (
+              places.length > 0 && (
+                places.map((place) => (
+                  <Link
+                    key={place._id}
+                    to={`/place/${place._id}`}
+                    className="flex cursor-pointer gap-4 bg-gray-100 p-4 rounded-2xl"
+                  >
+                    <div className="grow-0 shrink">
+                      <h2 className="text-xl">{place.title}</h2>
+                      <p className="text-sm mt-2">{place.description}</p>
+                    </div>
+                  </Link>
+                ))
+              )
+            )}
+          </div>
+        </div>
       );
 }
 

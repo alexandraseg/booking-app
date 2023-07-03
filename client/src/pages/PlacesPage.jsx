@@ -1,4 +1,3 @@
-
 import { Link, useParams } from "react-router-dom";
 import PlacesFormPage from "./PlacesFormPage";
 import AccountNav from "../AccountNav";
@@ -33,10 +32,6 @@ export default function PlacesPage() {
                         key={place._id}
                          to={'/account/places/'+place._id} className="flex cursor-pointer gap-4 bg-gray-100 p-4 rounded-2xl">
                             <div className="flex w-32 h-32 bg-gray-300 grow shrink-0">
-                                {/* if there are any photos, show the first one */}
-                                {/* {place.photos.length > 0 && (
-                                    <img className="object-cover" src={'http://localhost:4000/uploads/'+place.photos[0]} alt="" />
-                                )} */}
                                 <PlaceImg place={place} />
                             </div>
                             <div className="grow-0 shrink">
@@ -50,20 +45,3 @@ export default function PlacesPage() {
         </div>
     );
 }
-
-// useEffect is a React Hook that allows developers 
-//to run side effects, such as 
-//fetching data or modifying the DOM, 
-//after a component has rendered. 
-//It is a replacement for the componentDidMount, 
-//componentDidUpdate, and componentWillUnmount 
-//lifecycle methods in class components.
-
-// useEffect takes two arguments: a function 
-//and an optional array of dependencies. 
-//The function passed to useEffect will be called 
-//after every render cycle of the component. 
-//The dependencies array is used to specify 
-//which variables the effect should depend on. 
-//If any of the variables in the dependencies array change, 
-//the effect will be re-run.

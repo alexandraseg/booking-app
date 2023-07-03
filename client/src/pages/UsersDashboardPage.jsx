@@ -9,19 +9,6 @@ export default function UsersDashboardPage() {
   const [sortingDirection, setSortingDirection] = useState('ASC');
   
   const [data, setData] = useState([]);
-  
-//   const data = [
-//     {id:1, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-//     {id:2, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-//     {id:3, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-//     {id:4, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-//     {id:5, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-//     {id:6, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-//     {id:7, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-//     {id:8, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-//     {id:9, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-//     {id:10, username: 'Donella', name: 'Agneth', surname: 'Noshoe', email:'donella@gmail.com', tel:1234, role:'Host'},
-// ];
 
   const columns = {
     id: 'ID',
@@ -72,13 +59,6 @@ export default function UsersDashboardPage() {
           </tr>
         </thead>
         <tbody>
-          {/* {sortedData.map(item => (
-            <tr key={item.id}>
-              {Object.keys(item).map(key => (
-                <td key={key}>{item[key]}</td>
-              ))}
-            </tr>
-          ))} */}
           {sortedData.map(item => (
             <tr key={item._id}>
               <td>{item._id}</td>

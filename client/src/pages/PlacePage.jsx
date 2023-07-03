@@ -40,7 +40,6 @@ export default function PlacePage(props){
         if (!id) {
             return;
         }
-        // axios.get('/places/'+id)
         axios.get(`/places/${id}`).then(response => {
             setPlace(response.data);
         });
@@ -98,14 +97,11 @@ export default function PlacePage(props){
     }, [id]);
 
     if (!place) return '';
-
-    // console.log(place.address);
     
     const address = place.address;
 
     const encodedAddress = encodeURIComponent(address);
     var mapUrl = "https://www.google.com/maps?q="+encodedAddress+"&output=embed";
-    // console.log(mapUrl);
     
     const url = "https://nominatim.openstreetmap.org/search?format=json&limit=3&q=" + address;
 
@@ -222,11 +218,7 @@ export default function PlacePage(props){
 
   const owner = place.owner;
 
-//   console.log(place.owner);
-
   const ownerName = owner && owner.username ? owner.username : 'Unknown';
-    // console.log(place.owner.username);
-    // console.log(owner._id);
 
     const handleLinkClick = () => {
         if (!user) {
@@ -239,9 +231,7 @@ export default function PlacePage(props){
             // .then(response => {
             //     // const chat = response.data;
             //     // const chatId = chat._id;
-            // })
-
-        
+            // })   
         }
     };
 
@@ -445,9 +435,6 @@ export default function PlacePage(props){
                 </div>
               
             </div>
-
-          
-            
         </div>
         
     );

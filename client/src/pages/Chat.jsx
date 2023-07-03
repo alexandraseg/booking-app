@@ -15,15 +15,6 @@ export default function Chat() {
     const searchParams = new URLSearchParams(location.search);
     const owner = searchParams.get('owner');
     const ownerId = searchParams.get('ownerId');
-
-    // const userId = user._id;
-
-    // console.log(user.username);
-    // console.log(user._id);
-    // const username = owner ? owner.username : '';
-    //   console.log(owner); // Log the username to the console
-    //   console.log(owner.username);
-
     const [selectedChat, setSelectedChat] = useState(null);
     const [newMessage, setNewMessage] = useState('');
     const [chats, setChats] = useState([]);
@@ -94,14 +85,8 @@ export default function Chat() {
         window.history.replaceState({}, '', newUrl);
       }, [owner, ownerId]);
 
-    //console.log(selectedChat);
-    // console.log(selectedChat._id);
-
-
-
     const fetchMessages = async () => {
         if (!selectedChat) {
-            // console.log("Selected chat is not available");
             return;
         }
         try {
@@ -117,19 +102,11 @@ export default function Chat() {
         }
     }
 
-  
-
-    // console.log(selectedChat._id);
-
     useEffect(() => {
         fetchMessages();
     }, [selectedChat]);
 
-
-
-
     const isSameSenderMargin = (messages, m, i, userId) => {
-        // console.log(i === messages.length - 1);
       
         if (
           i < messages.length - 1 &&
@@ -171,10 +148,6 @@ export default function Chat() {
         return i > 0 && messages[i - 1].sender._id === m.sender._id; // if sender of previous message equals to the sender of current message
       };
 
-    // console.log(messages);
-    // console.log(selectedChat._id);
-    
-
     return (
         <div className="flex h-screen">
             <div className="bg-white w-1/3 pl-4 pt-4">
@@ -209,7 +182,6 @@ export default function Chat() {
                                 margin="auto">
                             </Spinner> 
                         ) : (
-                        // <div className="text-gray-600">messages</div>
                         messages.map((m, i) => (
                             <div className="gap-2" style={{ display: "flex", }} key={m._id}>
                                 {(isSameSender(messages, m, i, user._id) ||

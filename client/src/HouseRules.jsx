@@ -7,10 +7,7 @@ export default function HouseRules({selected, onChange}){
         }else{
             onChange([...selected.filter(selectedName => selectedName !== name)]);
         }
-        // console.log(ev.target.name);
-        // console.log(ev.target.checked);
 
-        // onChange([...selected, name]);
     }
 
     return(

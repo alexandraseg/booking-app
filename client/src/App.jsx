@@ -44,7 +44,6 @@ function App() {
         <Route path="/account/bookings/:id" element={<BookingPage />} />
         <Route path="/account/bookings/:id/review" element={<ReviewFormPage />} />
         <Route path="/results" element={<SearchResult/>} />
-
       </Route>
       <Route path="/dashboard" element={<DashboardPage/>} />
       <Route path="/dashboard/users" element={<UsersDashboardPage/>} />
@@ -61,7 +60,3 @@ function App() {
 }
 
 export default App
-
-// Using the below so that if I press "add new place" button, I will remain in the account page.
-//<Route path="/account/:subpage/:action" element={<ProfilePage />} />
-//

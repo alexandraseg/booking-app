@@ -19,7 +19,6 @@ export function UserContextProvider({children}) {
         }
       }, []);
 
-    //   <UserContext.Provider value={{user,setUser, ready}}> 
     return (
         <UserContext.Provider value={{user,setUser, ready}}> 
             {children}

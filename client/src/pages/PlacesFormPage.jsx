@@ -8,7 +8,6 @@ import { Navigate, useParams } from "react-router-dom";
 export default function PlacesFormPage() {
 
     const {id} = useParams();
-    //console.log({id});
 
     const [title, setTitle] = useState('');
     const [address, setAddress] = useState('');
@@ -24,7 +23,6 @@ export default function PlacesFormPage() {
     const [bedroomsNumber, setBedroomsNumber] = useState('');
     const [squareMeters, setSquareMeters] = useState('');
     const [spaceType, setSpaceType] = useState('');
-    // const [hasLivingRoom, setHasLivingRoom] = useState('');
     const [minimumLengthStay, setMinimumLengthStay] = useState('');
     const [price, setPrice] = useState('100');
     const [redirect, setRedirect] = useState(false);
@@ -243,13 +241,6 @@ export default function PlacesFormPage() {
                                 value={squareMeters} 
                                 onChange={ev => setSquareMeters(ev.target.value)}/>
                             </div>
-
-                            {/* <div>
-                                <h3 className="mt-2 -mb-1">Type of space</h3>
-                                <input type="text" 
-                                value={spaceType} 
-                                onChange={ev => setSpaceType(ev.target.value)}/>
-                            </div> */}
                             
                             <div>
                                 <h3 className="mt-2 -mb-1">Type of space</h3>
@@ -272,12 +263,7 @@ export default function PlacesFormPage() {
                                 value={price} 
                                 onChange={ev => setPrice(ev.target.value)}/>
                             </div>
-                            {/* <div>
-                                <h3 className="mt-2 -mb-1">Has a living room</h3>
-                                <input type="checkbox" 
-                                value={hasLivingRoom} 
-                                onChange={ev => setHasLivingRoom(ev.target.value)}/>
-                            </div> */}
+
                         </div>
                         <div>
                             <button className="primary my-4 mt-20">Save</button>

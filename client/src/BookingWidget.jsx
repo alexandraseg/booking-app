@@ -12,12 +12,6 @@ export default function BookingWidget({place}) {
 
     const {user} = useContext(UserContext);
 
-    // useEffect(() => {
-    //     if (user) {
-    //        setName(user.name);
-    //     }
-    // }, [user]); //if the user changes
-
     let numberOfNights = 0;
     if (checkIn && checkOut) {
         numberOfNights = differenceInCalendarDays(new Date(checkOut), new Date(checkIn));

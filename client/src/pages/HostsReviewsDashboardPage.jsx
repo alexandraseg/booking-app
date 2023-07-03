@@ -8,24 +8,10 @@ export default function HostsReviewsDashboardPage() {
     const [sortingColumn, setSortingColumn] = useState('id');
     const [sortingDirection, setSortingDirection] = useState('ASC');
     const [data, setData] = useState([]);
-
-    //     const data = [
-//       {id:1, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//       {id:2, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//       {id:3, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//       {id:4, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//       {id:5, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//       {id:6, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//       {id:7, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//       {id:8, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//       {id:9, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//       {id:10, guest: 'Donella', place: 'Cabin in Corralco', checkIn: '2023-05-12', checkOut:'2023-05-14', },
-//   ];
   
     const columns = {
       review_id: 'Review ID',
       place_id: 'Place ID',
-    //   owner_id: 'Host ID',
       hostRating: 'Host Rating',
       hostComment: 'Host Comment',
     };
@@ -69,13 +55,6 @@ export default function HostsReviewsDashboardPage() {
             </tr>
           </thead>
           <tbody>
-            {/* {sortedData.map(item => (
-              <tr key={item.id}>
-                {Object.keys(item).map(key => (
-                  <td key={key}>{item[key]}</td>
-                ))}
-              </tr>
-            ))} */}
 
         {sortedData.map(item => (
             <tr key={item._id}>

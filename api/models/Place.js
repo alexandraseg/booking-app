@@ -7,7 +7,6 @@ const placeSchema = new mongoose.Schema({
     photos: [String],
     description: String,
     houseRules: [String], 
-    // extraInfo: String,
     minimumLengthStay: Number,
     checkIn: Number,
     checkOut: Number,
@@ -17,7 +16,6 @@ const placeSchema = new mongoose.Schema({
     bedroomsNumber: Number,
     squareMeters: Number,
     spaceType: String,
-    // hasLivingRoom: String,
     price: Number,
 
 });

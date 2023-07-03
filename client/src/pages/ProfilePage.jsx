@@ -30,7 +30,6 @@ export default function ProfilePage() {
     }
 
     return(
-        // {subpage === 'profile' ...} was not working for some reason
             <div>
                 <AccountNav />
                {subpage !== 'places' && subpage !== 'bookings' &&(
@@ -46,8 +45,6 @@ export default function ProfilePage() {
                     
                     <RecommendationsPage />
                 )}
-                {/* {console.log(subpage)} */}
-
             </div>
     
         );

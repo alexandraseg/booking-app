@@ -44,17 +44,6 @@ export default function ReviewFormPage () {
       await axios.post('/reviews', reviewData);
       alert("Review submitted successfully! Your review will be public on the place's page.");
       setRedirect(true);
-      // if (id) {
-      //     // update
-      //     await axios.put('/reviews', {
-      //         id, ...reviewData
-      //         });
-      //     setRedirect(true);
-      // } else {
-      //     // new place
-      //     await axios.post('/reviews', reviewData);
-      //     setRedirect(true);
-      // }
     }
 
   if (redirect) {
@@ -62,7 +51,6 @@ export default function ReviewFormPage () {
   }
         
     return(
-        // <div>Review form page here</div>
         <div>
         <h1 className="text-3xl mt-10">Review</h1>
         <form onSubmit={saveReview}>

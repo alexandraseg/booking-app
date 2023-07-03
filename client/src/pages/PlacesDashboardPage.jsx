@@ -76,18 +76,3 @@ export default function PlacesDashboardPage() {
     </LayoutDashboard>
   );
 }
-
-
-// houseRules: [String], 
-// // extraInfo: String,
-// minimumLengthStay: Number,
-// checkIn: Number,
-// checkOut: Number,
-// maxGuests: Number,
-// bedsNumber: Number,
-// bathroomsNumber: Number,
-// bedroomsNumber: Number,
-// squareMeters: Number,
-// spaceType: String,
-// // hasLivingRoom: String,
-// price: Number,

@@ -59,5 +59,3 @@ export default function BookingsPage() {
         </div>
     );
 }
-
-//style={{ width: '28%', height: '28%' }}

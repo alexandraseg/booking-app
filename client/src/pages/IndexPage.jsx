@@ -30,5 +30,3 @@ export default function IndexPage() {
         </div>
     );
 }
-
-//gap-x is for columns, gap-y is for rows

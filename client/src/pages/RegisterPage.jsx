@@ -13,29 +13,6 @@ export default function RegisterPage() {
     const [role, setRole] = useState('');
     const [redirect, setRedirect] = useState(false);
 
-
-    //sending a request to api 
-    // async function registerUser(ev){
-    //     ev.preventDefault();
-    //     try {
-    //         await axios.post('/register', {
-    //             username,
-    //             password,
-    //             passwordConfirmation,
-    //             name,
-    //             surname,
-    //             email,
-    //             tel,
-    //             role
-    //         });
-    //         alert('Registration successful. Now you can log in');
-    //         setRedirect(true);
-
-    //     } catch (e) {
-    //         alert('Registration failed. Please try again later');
-    //     }  
-    // }
-
     async function registerUser(ev){
         ev.preventDefault();
         try {
@@ -63,8 +40,6 @@ export default function RegisterPage() {
           alert('Registration failed. Please try again later');
         }  
       }
-
-
 
     if (redirect) {
         return <Navigate to={'/login'} />
@@ -103,19 +78,6 @@ export default function RegisterPage() {
                     placeholder="mobile number"
                     value={tel}
                     onChange={ev => setTel(ev.target.value)} />
-
-                    {/* <input type="text" 
-                    placeholder="role"
-                    value={role}
-                    onChange={ev => setRole(ev.target.value)} /> */}
-
-                    {/* <select placeholder="role"
-                    value={role}
-                    onChange={ev => setRole(ev.target.value)}
-                    >
-                    <option value="guest">Guest</option>
-                    <option value="host">Host</option>
-                    </select> */}
 
                     <select
                         value={role}

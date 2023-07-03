@@ -8,22 +8,15 @@ export default function BookingPage() {
     const [booking, setBooking] = useState(null);
     const [showAllPhotos, setShowAllPhotos] = useState(false);
 
-
-    //########### new input
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
 
     const submitFeedback = () => {
-        // Implement your logic for submitting the feedback, e.g., sending a request to the server
-        // You can use the 'rating' and 'comment' variables to access the feedback data
-        // Reset the feedback state variables after submission if needed
         setRating(0);
         setComment('');
         setShowFeedbackModal(false);
       };
-
-    //############ new input - fin
 
     useEffect(() => {
         if (id) {
@@ -65,7 +58,6 @@ export default function BookingPage() {
     }
 
     return (
-        // <div>single booking: {id}</div>
         <div className="mt-4 bg-gray-100 -mx-8 px-8 py-4">
             <h1 className="text-2xl">{booking.place.title}</h1>
             <a className="flex gap-1 my-3 block font-semibold underline" target="_blank" href={'https://maps.google.com/?q='+booking.place.address}>

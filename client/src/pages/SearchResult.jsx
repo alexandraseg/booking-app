@@ -6,25 +6,17 @@ export default function SearchResult() {
 
     const location = useLocation();
     const { places: resultPlaces} = location.state;
-
-
-    // const searchParams = new URLSearchParams(location.search);
-    // const resultPlaces = searchParams.get('places');
-
-    
+   
     useEffect(() => {
         if (resultPlaces) {
             setPlaces(resultPlaces);
-        // setPlaces(JSON.parse(resultPlaces));
         }
     }, [resultPlaces]);
 
-    // console.log(places);
     return (
 
         <div className="mt-8 grid gap-x-2 gap-y-8 grid-cols-3  gap-4">
             <div className="col-span-1 ">
-                 {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-8 flex"> */}
                 <div className="bg-white shadow p-4 rounded-2xl ">
                     <div className="flex gap-2 items-center justify-center">
                         <div className="text-2xl text-center">
@@ -41,60 +33,30 @@ export default function SearchResult() {
                         <div className="pt-2 py-1 px-4 border-t">
                         <label>Number of guests:</label>
                         <input type="number" />
-                        {/* <input type="number" 
-                        value={numberOfGuests} 
-                        onChange={ev => setNumberOfGuests(ev.target.value)}/> */}
                         </div>
                         <div className="py-1 px-4 border-t">
                         <label>Beds:</label>
                         <input type="number" />
-
-                        {/* <input type="number" 
-                        value={numberOfGuests} 
-                        onChange={ev => setNumberOfGuests(ev.target.value)}/> */}
                         </div>
                         <div className="py-1 px-4 border-t">
                         <label>Bathrooms:</label>
                         <input type="number" />
-
-                        {/* <input type="number" 
-                        value={numberOfGuests} 
-                        onChange={ev => setNumberOfGuests(ev.target.value)}/> */}
                         </div>
                         <div className="py-1 px-4 border-t">
                         <label>Bedrooms:</label>
                         <input type="number" />
-
-                        {/* <input type="number" 
-                        value={numberOfGuests} 
-                        onChange={ev => setNumberOfGuests(ev.target.value)}/> */}
                         </div>
                         <div className="py-1 px-4 border-t">
                         <label>Square meters:</label>
                         <input type="number" />
-
-                        {/* <input type="number" 
-                        value={numberOfGuests} 
-                        onChange={ev => setNumberOfGuests(ev.target.value)}/> */}
                         </div>
                         <div className="py-1 px-4 border-t">
                         <label>Property type:</label>
                         <input type="number" />
-
-                        {/* <input type="number" 
-                        value={numberOfGuests} 
-                        onChange={ev => setNumberOfGuests(ev.target.value)}/> */}
                         </div>
                     </div>
-                    {/* <button onClick={bookThisPlace} className="primary mt-4"> */}
                     <button className="primary mt-4 ">
-                        Apply Filters
-                        {/* {numberOfNights > 0 && (
-                            <div>
-                                <span>Total (EUR): €{numberOfNights * place.price}</span>
-                            </div>         
-                        )} */}
-                        
+                        Apply Filters              
                     </button>
                 </div>
             </div>

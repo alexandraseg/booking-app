@@ -926,6 +926,10 @@ function matrixFactorisation(
 
 app.get('/recommendations', async (req, res) => {
     try {
+
+        const userData = await getUserDataFromReq(req);
+        const userId = userData.id;
+
         // Fetch all users from the database
         const users = await User.find({});
       
@@ -1003,14 +1007,10 @@ app.get('/recommendations', async (req, res) => {
          // Remove past recommendations
          await UserTopModel.deleteMany({});
 
-            console.log("Here1");
-
             for (const userID in userIDs) {
 
-                console.log("Here2");
                 if (Object.hasOwnProperty.call(userIDs, userID)) {
 
-                    console.log("Here3");
                     const userIndex = userIDs[userID];
                         
                     // Get their top recommendations
@@ -1027,25 +1027,30 @@ app.get('/recommendations', async (req, res) => {
                             myPersonalRecommendations.push(0);
                         }
                     }
-
-                    console.log("Here5");
                         
                     const recommendations = myPersonalRecommendations.map(index => itemList[index]);
-                    console.log("Here6");
+
                     console.log("recommendations: ", recommendations);
-                    await UserTopModel.create({
+
+                    const userTop = new UserTopModel({
                         p1: recommendations[0],
                         p2: recommendations[1],
                         p3: recommendations[2],
                         p4: recommendations[3],
                         p5: recommendations[4],
                         p6: recommendations[5],
-                        UserId: userID
                     });
 
-                    console.log("Here7");
+                    await userTop.save();
+
+                    const myUser = await User.findById(new mongoose.Types.ObjectId(userID));
+   
+                    myUser.userTop = userTop._id;
+                    await myUser.save();
                 }
             }
+        console.log("After loop");
+
         
         // Return a response indicating successful execution
         res.send('Recommendations generated successfully.');

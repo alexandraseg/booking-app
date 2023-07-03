@@ -3,28 +3,28 @@ const {Schema} = mongoose; //otherwise I would have to write mongoose.Schema()
 
 const UserTop = new Schema({
     p1: {
-        type: Number,
-        default: 0,
+        type: Schema.Types.ObjectId,
+        ref: 'Place',
     },
     p2: {
-        type: Number,
-        default: 0,
+        type: Schema.Types.ObjectId,
+        ref: 'Place',
     },
     p3: {
-        type: Number,
-        default: 0,
+        type: Schema.Types.ObjectId,
+        ref: 'Place',
     },
     p4: {
-        type: Number,
-        default: 0,
+        type: Schema.Types.ObjectId,
+        ref: 'Place',
     },
     p5: {
-        type: Number,
-        default: 0,
+        type: Schema.Types.ObjectId,
+        ref: 'Place',
     },
     p6: {
-        type: Number,
-        default: 0,
+        type: Schema.Types.ObjectId,
+        ref: 'Place',
     },
     createdAt: {
         type: Date,

@@ -725,15 +725,37 @@ function dotProduct(arr1, arr2) {
     return result;
   }
 
-//   function matrixFactorisation(
-//     Ratings, features = 2, 
-//     epochs = 4000, learningRate = 0.01, 
-//     weightDecay = 0.0002, verbose = true) {
+function dot(matrixA, matrixB) {
+  if (matrixA[0].length !== matrixB.length) {
+    throw new Error('The number of columns in matrixA must be equal to the number of rows in matrixB.');
+  }
+
+  const result = [];
+
+  for (let i = 0; i < matrixA.length; i++) {
+    const row = [];
+
+    for (let j = 0; j < matrixB[0].length; j++) {
+      let sum = 0;
+
+      for (let k = 0; k < matrixA[0].length; k++) {
+        sum += matrixA[i][k] * matrixB[k][j];
+      }
+
+      row.push(sum);
+    }
+
+    result.push(row);
+  }
+
+  return result;
+}
+
 
 function matrixFactorisation(
     Ratings, features = 2, 
-    epochs = 4000, learningRate = 0.001, 
-    weightDecay = 0.001, verbose = true) {
+    epochs = 4000, learningRate = 0.01, 
+    weightDecay = 0.0002, verbose = true) {
 
     const lenRatings = Ratings.length;
     const lenItems = Ratings[0].length;
@@ -828,8 +850,6 @@ function matrixFactorisation(
                 }
             }
         }
-
-
         
         // Calculate the RMSE
         let MSE = 0;
@@ -875,20 +895,8 @@ function matrixFactorisation(
     console.log("UserFeatures 2: ", UserFeatures);
     console.log("ItemFeatures 2: ", ItemFeatures);
 
-    // console.log("UserFeatures dimensions 2:", UserFeatures.length, "x", UserFeatures[0].length);
-    // console.log("ItemFeatures dimensions 2:", ItemFeatures.length, "x", ItemFeatures[0].length);
-
-    // for (let i = 0; i < lenRatings; i++) {
-    //     for (let j = 0; j < features; j++) {
-    //       UserFeatures[i][j] = 0;
-    //     }
-    //   }
-
-    //   for (let i = 0; i < lenItems; i++) {
-    //     for (let j = 0; j < features; j++) {
-    //       ItemFeatures[i][j] = 0;
-    //     }
-    //   }
+    console.log("UserFeatures dimensions 2:", UserFeatures.length, "x", UserFeatures[0].length);
+    console.log("ItemFeatures dimensions 2:", ItemFeatures.length, "x", ItemFeatures[0].length);
 
     // function isValidMatrix(matrix) {
     //     for (let row of matrix) {
@@ -907,8 +915,8 @@ function matrixFactorisation(
     //   } else {
     //     console.log("Invalid matrix values found. Please double-check your matrices.");
     //   }
-
-    const MatrixReversi = dotProduct(UserFeatures, ItemFeatures);
+    
+    const MatrixReversi = dot(UserFeatures, ItemFeatures);
 
     console.log("MatrixReversi: ", MatrixReversi);
         
@@ -969,12 +977,14 @@ app.get('/recommendations', async (req, res) => {
         
          const PredictedRatings = matrixFactorisation(Ratings, 2);
         
-         console.log("Predicted Ratings:", PredictedRatings);
+        //  console.log("Predicted Ratings:", PredictedRatings);
 
          for (let i = 0; i < users.length; i++) {
           for (let j = 0; j < items.length; j++) {
            // Only keep the Unknown elements and those that are not theirs
-           if (Ratings[i][j] > 0 || items[j].owner.toString() === users[i]._id.toString()) {
+
+        //    if (Ratings[i][j] > 0 || items[j].owner.toString() === users[i]._id.toString())
+           if (Ratings[i][j] > 0) {
             // By making the known in predicted 0
             PredictedRatings[i][j] = 0;
            }
@@ -984,6 +994,8 @@ app.get('/recommendations', async (req, res) => {
          let top = 6;
         
          // If the item pool is less than 6 keep just the top len
+         console.log("itemList.length: ", itemList.length);
+
          if (itemList.length < 6) {
           top = itemList.length;
          }
@@ -991,8 +1003,14 @@ app.get('/recommendations', async (req, res) => {
          // Remove past recommendations
          await UserTopModel.deleteMany({});
 
+            console.log("Here1");
+
             for (const userID in userIDs) {
+
+                console.log("Here2");
                 if (Object.hasOwnProperty.call(userIDs, userID)) {
+
+                    console.log("Here3");
                     const userIndex = userIDs[userID];
                         
                     // Get their top recommendations
@@ -1000,6 +1018,8 @@ app.get('/recommendations', async (req, res) => {
                         .map((_, i) => i)
                         .sort((a, b) => PredictedRatings[userIndex][b] - PredictedRatings[userIndex][a])
                         .slice(0, top);
+                        console.log("Here4");
+                        console.log("myPersonalRecommendations: ", myPersonalRecommendations);
                         
                     // Fill the remaining slots with zeroes if necessary
                     if (itemList.length < 6) {
@@ -1007,8 +1027,12 @@ app.get('/recommendations', async (req, res) => {
                             myPersonalRecommendations.push(0);
                         }
                     }
+
+                    console.log("Here5");
                         
                     const recommendations = myPersonalRecommendations.map(index => itemList[index]);
+                    console.log("Here6");
+                    console.log("recommendations: ", recommendations);
                     await UserTopModel.create({
                         p1: recommendations[0],
                         p2: recommendations[1],
@@ -1018,6 +1042,8 @@ app.get('/recommendations', async (req, res) => {
                         p6: recommendations[5],
                         UserId: userID
                     });
+
+                    console.log("Here7");
                 }
             }
         

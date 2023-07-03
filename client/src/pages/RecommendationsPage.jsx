@@ -8,84 +8,58 @@ import PlaceImg from "../PlaceImg";
 export default function RecommendationsPage() {
 
     const isRequestSentRef = useRef(false);
-
-    const [recommendations,setRecommendations] = useState([]);
+    const [placeIds, setPlaceIds] = useState([]);
+    const [places, setPlaces] = useState([]);
 
     useEffect(() => {
-        if (!isRequestSentRef.current){
-
+        const fetchData = async () => {
+          if (!isRequestSentRef.current) {
             isRequestSentRef.current = true;
+    
+            try {
+              const response = await axios.get('/recommendations');
+              const { p1, p2, p3, p4, p5, p6 } = response.data;
+              // Store the place IDs in the 'placeIds' state
+              setPlaceIds([p1, p2, p3, p4, p5, p6]);
+    
+              // Fetch details of each place
+              const placeResponses = await Promise.all([p1, p2, p3, p4, p5, p6].map((placeId) =>
+                axios.get(`/places/${placeId}`)
+              ));
+    
+              const placeData = placeResponses.map((placeResponse) => placeResponse.data);
+              // Store the place data in the 'places' state
+              setPlaces(placeData);
+            } catch (error) {
+              console.error('Error retrieving recommendations:', error);
+            }
+          }
+        };
+    
+        fetchData();
+      }, []);
 
-            axios.get('/recommendations');
-
-            // axios.get('/recommendations').then(({data}) => {
-            //     setRecommendations(data);
-            // });
-
-        }
-
-    }, []);
-
-    return (
-        <div>
-            <AccountNav />
-            <div className="mt-4">
-                {
-                <div>
-                    Recommendations here
-                </div>
-                }
-                {/* {recommendations.length > 0 && (
-                    <div>
-                        <h2>Recommendations</h2>
-                        {recommendations.map((recommendation) => (
-                            <Link
-                                key={recommendation._id}
-                                to={`/account/recommendations/${recommendation._id}`}
-                                className="flex cursor-pointer gap-4 bg-gray-100 p-4 rounded-2xl"
-                            >
-                                <div className="flex w-32 h-32 bg-gray-300 grow shrink-0">
-                                    <PlaceImg place={recommendation.place} />
-                                </div>
-                                <div className="grow-0 shrink">
-                                    <h2 className="text-xl">{recommendation.place.title}</h2>
-                                    <p className="text-sm mt-2">{recommendation.place.description}</p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                )} */}
-            </div>
-        </div>
-    );
-
-    // return (
-    //     <div>
-    //         <AccountNav />
-    //             <div className="mt-4">
-    //                 {
-    //                     <div>
-    //                         Recommendations here
-    //                     </div>
-    //                 }
-    //                 {recommendations.length > 0 && recommendations.map(recommendation => (
-    //                     <Link
-    //                     key={recommendation.place._id}
-    //                      to={'/account/recommendations/'+recommendation.place._id} className="flex cursor-pointer gap-4 bg-gray-100 p-4 rounded-2xl">
-    //                         <div className="flex w-32 h-32 bg-gray-300 grow shrink-0">
-    //                         <PlaceImg place={place} />
-
-    //                         </div>
-    //                         <div className="grow-0 shrink">
-    //                             <h2 className="text-xl">{recommendation.place.title}</h2>
-    //                             <p className='text-sm mt-2'>{recommendation.place.description}</p>
-    //                         </div>                   
-    //                     </Link>
-    //                 )
-    //                 )
-    //                 }
-    //             </div>
-    //     </div>
-    // );
+      return (
+    <div>
+      <AccountNav />
+      <div className="mt-4">
+        {places.length > 0 &&
+          places.map((place) => (
+            <Link
+              key={place._id}
+              to={`/place/${place._id}`}
+              className="flex cursor-pointer gap-4 bg-gray-100 p-4 rounded-2xl"
+            >
+              <div className="grow-0 shrink">
+                <h2 className="text-xl">{place.title}</h2>
+                <p className="text-sm mt-2">{place.description}</p>
+              </div>
+            </Link>
+          ))}
+      </div>
+    </div>
+    
+      );
 }
+
 

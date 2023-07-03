@@ -245,13 +245,15 @@ app.get('/places/:id', async (req,res) => {
         const userData = await getUserDataFromReq(req);
         const userId = userData.id;
 
-        const placeOwnerId = place.owner._id.toString();
+        if (place.owner && place.owner._id) {
+            const placeOwnerId = place.owner._id.toString();
         
-        if (userId === placeOwnerId) {
-            // Return the place data without creating or updating the UserPlace vector
-            // console.log("registered user is also the owner of this place");
-            // console.log(place.owner._id);
-            return res.json(place);
+            if (userId === placeOwnerId) {
+                // Return the place data without creating or updating the UserPlace vector
+                // console.log("registered user is also the owner of this place");
+                // console.log(place.owner._id);
+                return res.json(place);
+            }
         }
 
         // Create or update the UserPlace schema
@@ -1049,18 +1051,25 @@ app.get('/recommendations', async (req, res) => {
                     await myUser.save();
                 }
             }
-        console.log("After loop");
+        console.log("Recommendations generated successfully.");
 
-        
+        // Find the userTop for the registered user
+        const registeredUser = await User.findById(userId).populate('userTop');
+        const userTopRegisteredUser = registeredUser.userTop;
+        const { p1, p2, p3, p4, p5, p6 } = userTopRegisteredUser;
         // Return a response indicating successful execution
-        res.send('Recommendations generated successfully.');
+        // res.send('Recommendations generated successfully.');
+        // Send the userTop in the response
 
+        res.json({ p1, p2, p3, p4, p5, p6 });
+        // res.json(userTopRegisteredUser);
 
       } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('An error occurred while generating recommendations.');
       }
 })
+
 
 app.listen(4000);
 

@@ -23,7 +23,8 @@ import ReviewFormPage from './pages/ReviewFormPage';
 import SearchResult from './pages/SearchResult';
 import RecommendationsPage from './pages/RecommendationsPage';
 
-axios.defaults.baseURL = 'http://localhost:4000'; //http://127.0.0.1:4000'
+// axios.defaults.baseURL = 'http://localhost:4000'; //http://127.0.0.1:4000'
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 axios.defaults.withCredentials = true; //to accept cookies
 
 function App() {

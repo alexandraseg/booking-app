@@ -16,6 +16,8 @@ const ChatModel = require('./models/ChatModel.js');
 const Message = require('./models/Message.js');
 const UserPlaceModel = require('./models/UserPlace.js');
 const UserTopModel = require('./models/UserTop.js');
+const {S3Client, PutObjectCommand} = require('@aws-sdk/client-s3');
+const mime = require('mime-types');
 
 require('dotenv').config()
 
@@ -23,6 +25,7 @@ const app = express();
 
 const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = 'randomstringhere';
+const bucket = 'lexie-booking-app';
 
 //middleware
 app.use(express.json());
@@ -42,7 +45,29 @@ app.use((req, res, next) => {
     return next();
   });
 
-mongoose.connect(process.env.MONGO_URL);
+// mongoose.connect(process.env.MONGO_URL);
+
+async function uploadToS3(path, originalFilename, mimetype) {
+    const client = new S3Client({
+        region: 'eu-north-1',
+        credentials: {
+            accessKeyId: process.env.S3_ACCESS_KEY,
+            secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+        },
+    });
+    const parts = originalFilename.split('.');
+    const ext = parts[parts.length - 1];
+    const newFilename = Date.now() + '.' + ext;
+    await client.send(new PutObjectCommand({
+        Bucket: bucket,
+        Body: fs.readFileSync(path),
+        Key: newFilename,
+        ContentType: mimetype,
+        ACL: 'public-read',
+    }));
+    return `https://${bucket}.s3.amazonaws.com/${newFilename}`;
+
+}
 
 function getUserDataFromReq(req) {
     return new Promise((resolve, reject) => {
@@ -66,10 +91,12 @@ function getUserDataFromReq(req) {
   }
   
 app.get('/test', (req, res)=>{
+    mongoose.connect(process.env.MONGO_URL);
     res.json('test ok');
 });
 
 app.post('/register', async (req, res)=>{
+    mongoose.connect(process.env.MONGO_URL);
     const {username, password, passwordConfirmation, name, surname, email, tel, role} = req.body;
   
     try {
@@ -119,6 +146,7 @@ app.post('/login', async (req,res) => {
 })
 
 app.get('/profile', (req,res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const {token} = req.cookies;
     if (token) {
         jwt.verify(token, jwtSecret, {}, async (err, userData) => {
@@ -138,30 +166,43 @@ app.post('/logout', (req, res)=>{
 app.post('/upload-by-link', async (req,res)=>{
     const {link} = req.body;
     const newName = 'photo' + Date.now() + '.jpg';
-    const destinationPath = path.join(__dirname, 'uploads', newName);
+    // const destinationPath = path.join(__dirname, 'uploads', newName);
     await imageDownloader.image({
         url: link,
-        dest: destinationPath,
+        dest: '/tmp/' +newName,
     });
-    res.json(newName);
+    const url = await uploadToS3('/tmp/' +newName, newName, mime.lookup('/tmp/' +newName));
+    res.json(url);
 })
 
-const photosMiddleware = multer({dest:'uploads'});
+const photosMiddleware = multer({dest:'/tmp'});
 
-app.post('/upload', photosMiddleware.array('photos', 100), (req,res)=>{
+app.post('/upload', photosMiddleware.array('photos', 100), async (req,res) => {
     const uploadedFiles = [];
     for (let i = 0; i < req.files.length; i++) {
-        const {path, originalname} = req.files[i]; //path & originalname are propertiese of the file, can finds them in 'network>preview'
-        const parts = originalname.split('.');
-        const ext = parts[parts.length - 1];
-        const newPath = path + '.' + ext;
-        fs.renameSync(path, newPath);
-        uploadedFiles.push(newPath.replace('uploads/',''));
+        const {path, originalname, mimetype} = req.files[i];
+        const url = await uploadToS3(path, originalname, mimetype);
+        uploadedFiles.push(url);
     }
-    res.json(uploadedFiles);
 });
 
+// const photosMiddleware = multer({dest:'/uploads'});
+
+// app.post('/upload', photosMiddleware.array('photos', 100), (req,res)=>{
+//     const uploadedFiles = [];
+//     for (let i = 0; i < req.files.length; i++) {
+//         const {path, originalname} = req.files[i]; //path & originalname are propertiese of the file, can finds them in 'network>preview'
+//         const parts = originalname.split('.');
+//         const ext = parts[parts.length - 1];
+//         const newPath = path + '.' + ext;
+//         fs.renameSync(path, newPath);
+//         uploadedFiles.push(newPath.replace('uploads/',''));
+//     }
+//     res.json(uploadedFiles);
+// });
+
 app.post('/places', (req,res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const {token} = req.cookies;
     const {
         title, address, addedPhotos, description,
@@ -186,6 +227,7 @@ app.post('/places', (req,res) => {
 });
 
 app.get('/user-places', (req,res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const {token} = req.cookies;
     jwt.verify(token, jwtSecret, {}, async (err, userData) => {
         if (err) throw err;
@@ -196,7 +238,7 @@ app.get('/user-places', (req,res) => {
 });
 
 app.get('/places/:id', async (req,res) => {
-
+    mongoose.connect(process.env.MONGO_URL);
     const {id} = req.params;
     const place = await Place.findById(id).populate('owner', 'username');
     // Check if the user is a registered one
@@ -249,6 +291,7 @@ app.get('/places/:id', async (req,res) => {
 
 //all places are public available, so no need to ensure that only owner can see them
 app.put('/places', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const {token} = req.cookies;
     const {
         id, title, address, addedPhotos, description,
@@ -273,10 +316,12 @@ app.put('/places', async (req, res) => {
 });
 
 app.get('/places', async (req,res) => {
+    mongoose.connect(process.env.MONGO_URL);
    res.json( await Place.find() ); 
 })
 
 app.post('/bookings', async (req,res) => {
+    mongoose.connect(process.env.MONGO_URL);
    const userData = await getUserDataFromReq(req);
    const {place, checkIn, checkOut, numberOfGuests, price,} = req.body;
    Booking.create({
@@ -303,11 +348,13 @@ app.post('/bookings', async (req,res) => {
 
 //bookings are private so first will grab the token
 app.get('/bookings', async (req,res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const userData = await getUserDataFromReq(req);
     res.json( await Booking.find({user:userData.id}).populate('place'));
 });
 
 app.get('/bookings/:id', async (req,res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const {id} = req.params;
     const booking = await Booking.findById(id).populate('place');
   res.json(booking);
@@ -315,6 +362,7 @@ app.get('/bookings/:id', async (req,res) => {
 });
 
 app.post('/reviews', async (req,res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const {token} = req.cookies;
     const {
         hostRating, 
@@ -351,6 +399,7 @@ app.post('/reviews', async (req,res) => {
 });
 
 app.get('/reviews', async (req,res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const { place_id } = req.query;
     const reviews = await Review.find({ place_id });
     // console.log(reviews);
@@ -358,12 +407,14 @@ app.get('/reviews', async (req,res) => {
  })
 
  app.get('/users', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const { ids } = req.query;
     const users = await User.find({ _id: { $in: ids } });
     res.json(users);
   });
 
  app.get('/all-users', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     try {
         const users = await User.find();
         res.json(users);
@@ -374,6 +425,7 @@ app.get('/reviews', async (req,res) => {
  }) 
 
  app.get('/all-places', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     try {
         const places = await Place.find();
         res.json(places);
@@ -384,6 +436,7 @@ app.get('/reviews', async (req,res) => {
  })
 
  app.get('/all-bookings', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     try {
         const bookings = await Booking.find();
         res.json(bookings);
@@ -394,6 +447,7 @@ app.get('/reviews', async (req,res) => {
  })
 
  app.get('/all-reviews', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     try {
         const reviews = await Review.find();
         res.json(reviews);
@@ -404,6 +458,7 @@ app.get('/reviews', async (req,res) => {
  })
 
  app.get('/searchPlaces', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     try{
         const { address, checkIn, checkOut } = req.query;
         const places = await Place.find({ address: { $regex: address, $options: 'i' } })
@@ -464,6 +519,7 @@ app.get('/reviews', async (req,res) => {
 
 // creating or fetching 1-1 chat
 app.post('/accessChat', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     const userData = await getUserDataFromReq(req);
     // const currentUserId = userData.id;
 
@@ -515,6 +571,7 @@ app.post('/accessChat', async (req, res) => {
 });
 
 app.get('/fetchChats', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     try {
         // returning all the chats the user is a part of
         ChatModel.find({ users: { $elemMatch: { $eq: req.user._id } } })
@@ -535,6 +592,7 @@ app.get('/fetchChats', async (req, res) => {
 });
 
 app.post('/sendMessage', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
 
     const { content, chatId} = req.body;
 
@@ -577,6 +635,7 @@ app.post('/sendMessage', async (req, res) => {
 });
 
 app.get('/allMessages/:chatId', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     try {
         const messages = await Message.find({chat:req.params.chatId})
         .populate("sender", "name email")
@@ -770,6 +829,7 @@ function matrixFactorisation(
 
 
 app.get('/recommendations', async (req, res) => {
+    mongoose.connect(process.env.MONGO_URL);
     try {
 
         const userData = await getUserDataFromReq(req);

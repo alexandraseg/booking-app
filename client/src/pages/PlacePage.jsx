@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { MapContainer, TileLayer, Marker} from "react-leaflet";
 import 'leaflet/dist/leaflet.css';
 import { UserContext } from "../UserContext";
+import Image from "./Image";
 
 
 
@@ -132,7 +133,7 @@ export default function PlacePage(props){
                     
                     {place?.photos?.length > 0 && place.photos.map(photo => (
                         <div>
-                            <img src={'http://localhost:4000/uploads/'+photo} alt="" />
+                            <Image src={photo} alt="" />
                         </div>
                     ))}
                 </div>
@@ -252,17 +253,17 @@ export default function PlacePage(props){
                         <div>
                             {place.photos?.[0] && (
                                 <div>
-                                    <img onClick={() => setShowAllPhotos(true)} className="aspect-square cursor-pointer object-cover" src={'http://localhost:4000/uploads/'+place.photos[0]} alt=""/>
+                                    <Image onClick={() => setShowAllPhotos(true)} className="aspect-square cursor-pointer object-cover" src={place.photos[0]} alt=""/>
                                 </div>
                             )}
                         </div>
                         <div className="grid">
                             {place.photos?.[1] && (
-                                    <img onClick={() => setShowAllPhotos(true)} className="aspect-square cursor-pointer object-cover" src={'http://localhost:4000/uploads/'+place.photos[1]} alt=""/>
+                                    <Image onClick={() => setShowAllPhotos(true)} className="aspect-square cursor-pointer object-cover" src={place.photos[1]} alt=""/>
                                 )}
                             <div className="overflow-hidden">
                                 {place.photos?.[2] && (
-                                        <img onClick={() => setShowAllPhotos(true)} className="aspect-square cursor-pointer object-cover relative top-2" src={'http://localhost:4000/uploads/'+place.photos[2]} alt=""/>
+                                        <Image onClick={() => setShowAllPhotos(true)} className="aspect-square cursor-pointer object-cover relative top-2" src={place.photos[2]} alt=""/>
                                     )}
                             </div>
                         </div>
